@@ -163,3 +163,8 @@ tr.link:hover td{background:var(--bg)}
 .side .ring{border-color:var(--mint)}
 .side .ring::after{background:var(--mint)}
 .cat.bundle .card.pop{border-color:var(--mint)}
+
+/* athar logo */
+.ring{width:46px;height:46px;border:0;border-radius:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='12 30 170 166'%3E%3Cpath d='M36 104 A66 66 0 0 1 106 42' fill='none' stroke='%23D4A64A' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M36 140 Q40 162 64 162' fill='none' stroke='%23D4A64A' stroke-width='4.5' stroke-linecap='round'/%3E%3Crect x='25' y='98' width='22' height='44' rx='11' fill='%23D4A64A'/%3E%3Cellipse cx='72' cy='161' rx='9' ry='5.5' fill='%23D4A64A'/%3E%3Cpath d='M100 38 L109 38 L68 170 L59 170 Z' fill='%23D4A64A'/%3E%3Cpath d='M100 38 L116 38 L162 170 L134 170 Z' fill='%23D4A64A'/%3E%3Cpath d='M18 178 C92 184 146 150 158 82 L168 85 C158 162 98 192 18 178 Z' fill='%23D4A64A' stroke='%23121212' stroke-width='5' paint-order='stroke' stroke-linejoin='round'/%3E%3Cpath d='M170 52 L176 88 L150 81 Z' fill='%23D4A64A'/%3E%3C/svg%3E") center/contain no-repeat}
+.ring::after{display:none}
+.side .ring{border:0}
