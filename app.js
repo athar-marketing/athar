@@ -103,15 +103,94 @@ function pkgCard(p, c) {
     <button class="btn" data-act="order" data-id="${p.id}">اطلب الباقة</button>
   </article>`;
 }
+const HOME_CSS = `
+.hero2{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;padding-block:34px 30px}
+@media (max-width:760px){.hero2{grid-template-columns:1fr;gap:10px;padding-block:18px 22px}.hero2-art{order:-1}}
+.hero2 .eyebrow{display:inline-block;font-family:var(--display);font-weight:500;color:var(--gold);letter-spacing:.02em;border:1px solid #3A3222;background:var(--lime);border-radius:999px;padding:3px 14px;font-size:.9rem;justify-self:start}
+.hero2-text{display:grid;gap:16px}
+.hero2 h1{font-size:clamp(2.1rem,6vw,3.3rem);line-height:1.2}
+.hero2 h1 em{font-style:normal;color:var(--gold)}
+.hero2 p{color:var(--muted);font-size:1.08rem;max-width:56ch}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px}
+.cta-row .btn{padding:13px 22px;font-size:1rem}
+.hero2-art{display:grid;place-items:center}
+.hero2-art .glow{width:min(300px,62vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 50%,rgba(212,166,74,.22),rgba(212,166,74,.04) 55%,transparent 70%)}
+.hero2-art .ring{width:62%;height:62%}
+.home-sec{padding-block:38px 8px;display:grid;gap:18px}
+.home-sec .cat-head p{max-width:60ch}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.svc-grid{grid-template-columns:repeat(2,1fr);gap:10px}.svc{padding:14px}.svc p{display:none}.svc h3{font-size:.98rem}.hero2-art .glow{width:190px}}
+.svc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:8px;text-align:right;color:var(--ink);cursor:pointer;transition:border-color .15s}
+.svc:hover,.svc:focus-visible{border-color:var(--gold)}
+.svc svg{width:34px;height:34px;color:var(--gold)}
+.svc h3{font-size:1.08rem}
+.svc p{color:var(--muted);font-size:.92rem}
+.svc span{color:var(--gold);font-size:.88rem;font-weight:600}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.why{border-top:2px solid var(--gold);padding-top:12px;display:grid;gap:6px}
+.why h3{font-size:1.05rem}
+.why p{color:var(--muted);font-size:.93rem}
+.final-cta{margin-top:40px;background:linear-gradient(135deg,#1F1A10,#161410);border:1px solid #3A3222;border-radius:18px;padding:30px 22px;display:grid;gap:14px;justify-items:center;text-align:center}
+.final-cta h2{font-size:clamp(1.5rem,4.5vw,2.1rem)}
+.final-cta p{color:var(--muted)}
+.foot .legal-links a{color:var(--ink);text-underline-offset:3px}
+`;
+const SVC_ICONS = [
+  [/إعلان/, '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M18 6a8 8 0 0 1 0 12"/>'],
+  [/تصميم/, '<path d="M12 21l-4-8 4-9 4 9z"/><path d="M12 13v8"/><circle cx="12" cy="11" r="1.3"/>'],
+  [/سوشيال/, '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>'],
+  [/CRM|كول/, '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 2-2 3-5 3h-1"/>'],
+  [/ذكاء/, '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M10 10v4l3.5-2z"/><path d="M8 3l1 3M16 3l-1 3M12 2v3"/>'],
+  [/مونتاج/, '<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 9l2-5 16 0-2 5"/><path d="M8 4l-1.5 5M13 4l-1.5 5M18 4l-1.5 5"/>'],
+];
+const svcIcon = name => { const m = SVC_ICONS.find(([r]) => r.test(name)); return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${m ? m[1] : SVC_ICONS[0][1]}</svg>`; };
+const HOME_FAQ = [
+  ["هل السعر المعروض هو السعر النهائي؟", "نعم. السعر المعروض على كل باقة هو المبلغ الذي تدفعه، بدون أي رسوم إضافية."],
+  ["هل ميزانية الإعلانات داخلة في سعر الباقة؟", "لا. ميزانية الإعلانات تُدفع للمنصة مباشرة من حسابك، ولا نأخذ منها أي نسبة. نقترح عليك الميزانية المناسبة لنشاطك وأهدافك قبل البدء."],
+  ["متى تبدأون العمل؟", "نبدأ خلال 48 ساعة من تأكيد الدفع واستلام بيانات نشاطك."],
+  ["كم تعديلاً يشمل التصميم؟", "يشمل كل تصميم تعديلين مجاناً."],
+  ["كيف أدفع؟", "بعد إرسال طلبك تظهر لك طريقة الدفع وخطواتها في صفحة الطلب داخل حسابك."],
+  ["هل الاشتراك ملزم لمدة طويلة؟", "لا. الاشتراك شهري، ويمكنك إيقافه قبل نهاية الشهر دون أي رسوم. وإذا اشتركت لعدة أشهر بسعر مخفّض ثم أردت الإيقاف، نعيد لك قيمة الأشهر المتبقية بعد خصم فرق التخفيض."],
+  ["هل تحتاجون كلمة مرور حساباتي؟", "لا. نطلب صلاحية إدارة عبر الأدوات الرسمية للمنصات مثل Meta Business Suite، ويبقى الحساب ملكاً لك بالكامل، ويمكنك إلغاء الصلاحية في أي وقت."],
+  ["ماذا لو لم يعجبني العمل؟", "نعدّل العمل حسب ملاحظاتك في حدود التعديلات المشمولة في باقتك. وإذا طلبت الإلغاء قبل أن نبدأ التنفيذ، نعيد لك المبلغ كاملاً."],
+  ["هل يمكن تجهيز باقة خاصة بنشاطي؟", "نعم. تواصل معنا على واتساب من زر الاستشارة المجانية، ونجهز لك باقة تناسب نشاطك وميزانيتك."],
+];
 function viewStore() {
+  if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
+  const services = shown.filter(({ c }) => !c.is_bundle);
+  const consult = settings.whatsapp ? waLink("السلام عليكم، أبغى استشارة مجانية عن تسويق نشاطي") : "";
   app.innerHTML = `<div class="wrap">
     ${topBar()}
-    <div class="hero">
-      <h1>تسويقك كامل في <em>باقة واحدة</em></h1>
-      <p>إعلانات ممولة، تصميم، إدارة حسابات، كول سنتر، وفيديوهات بالذكاء الاصطناعي. اختر باقتك، وتابع طلبك خطوة بخطوة من حسابك.</p>
-      <div class="facts"><span class="fact">الأسعار بالريال السعودي</span><span class="fact">متابعة الطلب من حسابك</span><span class="fact">تعديلان مجاناً على كل تصميم</span></div>
-    </div>
+    <section class="hero2">
+      <div class="hero2-text">
+        <span class="eyebrow">أثر تصنع أثر</span>
+        <h1>تسويق يصنع <em>فرقاً</em> في مبيعاتك</h1>
+        <p>إعلانات ممولة، تصميم، إدارة حسابات، فيديوهات بالذكاء الاصطناعي، ومونتاج، وكول سنتر. كل ما يحتاجه نشاطك في مكان واحد، بباقات واضحة بالريال السعودي.</p>
+        <div class="cta-row">
+          <button class="btn" type="button" data-act="scroll" data-to="packages">تصفّح الباقات</button>
+          ${consult ? `<a class="btn ghost" href="${consult}" target="_blank" rel="noopener">استشارة مجانية على واتساب</a>` : ""}
+        </div>
+        <div class="facts"><span class="fact">الأسعار بالريال السعودي</span><span class="fact">نبدأ خلال 48 ساعة</span><span class="fact">تابع طلبك من حسابك</span></div>
+      </div>
+      <div class="hero2-art"><div class="glow"><span class="ring" aria-hidden="true"></span></div></div>
+    </section>
+    ${services.length ? `<section class="home-sec" aria-labelledby="svc-h">
+      <div class="cat-head"><h2 id="svc-h">خدماتنا</h2><p>اختر الخدمة التي يحتاجها نشاطك، ونوصلك لباقاتها مباشرة.</p></div>
+      <div class="svc-grid">${services.map(({ c }) => `<button class="svc" type="button" data-act="svc" data-f="${c.id}">${svcIcon(c.name)}<h3>${esc(c.name)}</h3>${c.description ? `<p>${esc(c.description)}</p>` : ""}<span>شاهد الباقات ←</span></button>`).join("")}</div>
+    </section>` : ""}
+    <section class="home-sec" aria-labelledby="why-h">
+      <div class="cat-head"><h2 id="why-h">لماذا أثر؟</h2></div>
+      <div class="why-grid">
+        <div class="why"><h3>أسعار واضحة</h3><p>كل باقة بسعرها النهائي بالريال، بدون رسوم مخفية ولا مفاجآت.</p></div>
+        <div class="why"><h3>نبدأ خلال 48 ساعة</h3><p>من تأكيد الدفع واستلام بيانات نشاطك، ونسلّمك أول نتائج بسرعة.</p></div>
+        <div class="why"><h3>طلبك تحت عينك</h3><p>تابع حالة طلبك ورسائل الفريق من حسابك في أي وقت.</p></div>
+        <div class="why"><h3>حساباتك ملكك</h3><p>نعمل بصلاحيات رسمية من المنصات، ولا نطلب كلمات المرور أبداً.</p></div>
+      </div>
+    </section>
+    <section class="home-sec" id="packages" aria-labelledby="pkg-h" style="padding-bottom:0">
+      <div class="cat-head"><h2 id="pkg-h">باقاتنا</h2><p>قارن الباقات واطلب مباشرة. وتقدر تتواصل معنا لو احتجت باقة مخصصة.</p></div>
+    </section>
     <nav class="tabs" aria-label="أقسام الخدمات">
       <button class="tab" data-act="filter" data-f="all" aria-pressed="${storeFilter === "all"}">الكل</button>
       ${shown.map(({ c }) => `<button class="tab" data-act="filter" data-f="${c.id}" aria-pressed="${storeFilter == c.id}">${esc(c.name)}</button>`).join("")}
@@ -129,10 +208,25 @@ function viewStore() {
         <div class="step"><h3>تابع التنفيذ</h3><p>حالة طلبك تتحدث في حسابك حتى التسليم.</p></div>
       </div>
     </section>
+    <section class="faq" id="faq"><div class="cat-head"><h2>الأسئلة الشائعة</h2></div><div class="faq-list">${HOME_FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></section>
+    <section class="final-cta">
+      <h2>جاهز تصنع أثر لنشاطك؟</h2>
+      <p>ابدأ بالباقة المناسبة، أو كلّمنا ونساعدك تختار.</p>
+      <div class="cta-row" style="justify-content:center">
+        <button class="btn" type="button" data-act="scroll" data-to="packages">تصفّح الباقات</button>
+        ${consult ? `<a class="btn ghost" href="${consult}" target="_blank" rel="noopener">استشارة مجانية</a>` : ""}
+      </div>
+    </section>
     <footer class="foot"><p>${esc(storeName())} لخدمات التسويق · المملكة العربية السعودية</p>
       ${settings.whatsapp ? `<p>واتساب: <span dir="ltr">+${esc(settings.whatsapp)}</span></p>` : ""}
-      <p>ميزانية الإعلانات الممولة تُدفع للمنصة مباشرة ولا تدخل في سعر الباقة.</p></footer>
+      <p>ميزانية الإعلانات الممولة تُدفع للمنصة مباشرة ولا تدخل في سعر الباقة.</p>
+      <p class="legal-links"><a href="legal.html#terms">الشروط والأحكام</a> · <a href="legal.html#refund">الإلغاء والاسترجاع</a> · <a href="legal.html#privacy">سياسة الخصوصية</a></p></footer>
   </div>`;
+}
+function applyFilter(f) {
+  storeFilter = f;
+  app.querySelectorAll(".tabs .tab").forEach(t => t.setAttribute("aria-pressed", String(t.dataset.f == f)));
+  app.querySelectorAll("section.cat").forEach(s => (s.hidden = storeFilter !== "all" && s.dataset.cat != storeFilter));
 }
 
 /* ================= AUTH ================= */
@@ -496,11 +590,9 @@ async function route() {
 app.addEventListener("click", async e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const act = b.dataset.act;
-  if (act === "filter") {
-    storeFilter = b.dataset.f;
-    app.querySelectorAll(".tabs .tab").forEach(t => t.setAttribute("aria-pressed", t === b));
-    app.querySelectorAll("section.cat").forEach(s => (s.hidden = storeFilter !== "all" && s.dataset.cat != storeFilter));
-  }
+  if (act === "filter") applyFilter(b.dataset.f);
+  else if (act === "svc") { applyFilter(b.dataset.f); document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }
+  else if (act === "scroll") document.getElementById(b.dataset.to)?.scrollIntoView({ behavior: "smooth" });
   else if (act === "order") go("#/order/" + b.dataset.id);
   else if (act === "logout") { await sb.auth.signOut(); }
   else if (act === "menu") document.getElementById("shell")?.classList.toggle("open");
