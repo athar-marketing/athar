@@ -105,7 +105,7 @@ function pkgCard(p, c) {
 }
 const HOME_CSS = `
 .hero2{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;padding-block:34px 30px}
-@media (max-width:760px){.hero2{grid-template-columns:1fr;gap:10px;padding-block:18px 22px}.hero2-art{order:-1}}
+@media (max-width:760px){.hero2{grid-template-columns:1fr;gap:10px;padding-block:18px 22px}.hero2-art{order:0}.hero-ill{width:min(320px,86vw)}}
 .hero2 .eyebrow{display:inline-block;font-family:var(--display);font-weight:500;color:var(--gold);letter-spacing:.02em;border:1px solid #3A3222;background:var(--lime);border-radius:999px;padding:3px 14px;font-size:.9rem;justify-self:start}
 .hero2-text{display:grid;gap:16px}
 .hero2 h1{font-size:clamp(2.1rem,6vw,3.3rem);line-height:1.2}
@@ -119,7 +119,7 @@ const HOME_CSS = `
 .home-sec{padding-block:38px 8px;display:grid;gap:18px}
 .home-sec .cat-head p{max-width:60ch}
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media (max-width:760px){.svc-grid{grid-template-columns:repeat(2,1fr);gap:10px}.svc{padding:14px}.svc p{display:none}.svc h3{font-size:.98rem}.hero2-art .glow{width:190px}}
+@media (max-width:760px){.svc-grid{grid-template-columns:repeat(2,1fr);gap:10px}.svc{padding:14px}.svc p{display:none}.svc h3{font-size:.98rem}}
 .svc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:8px;text-align:right;color:var(--ink);cursor:pointer;transition:border-color .15s}
 .svc:hover,.svc:focus-visible{border-color:var(--gold)}
 .svc svg{width:34px;height:34px;color:var(--gold)}
@@ -134,6 +134,19 @@ const HOME_CSS = `
 .final-cta h2{font-size:clamp(1.5rem,4.5vw,2.1rem)}
 .final-cta p{color:var(--muted)}
 .foot .legal-links a{color:var(--ink);text-underline-offset:3px}
+.hero-ill{width:min(380px,90vw)}
+.hero-ill svg{width:100%;height:auto;display:block}
+@media (prefers-reduced-motion:no-preference){.hero-ill .float1{animation:fl 5s ease-in-out infinite}.hero-ill .float2{animation:fl 6s ease-in-out infinite .8s}.hero-ill .float3{animation:fl 5.5s ease-in-out infinite 1.6s}@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}}
+.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+@media (max-width:860px){.journey{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.journey{grid-template-columns:1fr}}
+.jstep{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:8px;align-content:start}
+.jstep .jart{background:#171511;border-radius:12px;display:grid;place-items:center;padding:10px}
+.jstep .jart svg{width:100%;max-width:190px;height:auto}
+.jstep .jn{font-family:var(--display);font-weight:700;color:var(--bg);background:var(--gold);width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:.9rem}
+.jstep .jh{display:flex;align-items:center;gap:8px}
+.jstep h3{font-size:1.05rem}
+.jstep p{color:var(--muted);font-size:.92rem}
 `;
 const SVC_ICONS = [
   [/إعلان/, '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M18 6a8 8 0 0 1 0 12"/>'],
@@ -173,12 +186,45 @@ function viewStore() {
         </div>
         <div class="facts"><span class="fact">الأسعار بالريال السعودي</span><span class="fact">نبدأ خلال 48 ساعة</span><span class="fact">تابع طلبك من حسابك</span></div>
       </div>
-      <div class="hero2-art"><div class="glow"><span class="ring" aria-hidden="true"></span></div></div>
+      <div class="hero2-art"><div class="hero-ill"><svg viewBox="0 0 380 380" direction="ltr" style="direction:ltr" role="img" aria-label="رسمة: موبايل عليه بوست وحوله إعلان ممول ورسالة من عميل ورسم بياني صاعد">
+  <defs><radialGradient id="hg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#D4A64A" stop-opacity=".22"/><stop offset="1" stop-color="#D4A64A" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="190" cy="190" r="185" fill="url(#hg)"/>
+  <rect x="120" y="40" width="140" height="280" rx="24" fill="#1C1C1C" stroke="#3A3222" stroke-width="2"/>
+  <rect x="165" y="52" width="50" height="8" rx="4" fill="#2E2B27"/>
+  <circle cx="146" cy="84" r="12" fill="#D4A64A"/><rect x="164" y="78" width="60" height="6" rx="3" fill="#3A3528"/><rect x="164" y="88" width="38" height="5" rx="2.5" fill="#2E2B27"/>
+  <rect x="134" y="106" width="112" height="112" rx="10" fill="#26211A"/>
+  <path d="M150 196 L178 166 L198 184 L230 140" fill="none" stroke="#D4A64A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M224 138 L234 138 L232 150" fill="none" stroke="#D4A64A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M140 234 c4-6 12-6 14 0 c2-6 10-6 14 0 c0 8-14 14-14 14 s-14-6-14-14z" fill="#E06A5A"/>
+  <rect x="176" y="234" width="16" height="12" rx="3" fill="none" stroke="#A9A196" stroke-width="2.5"/>
+  <rect x="134" y="258" width="100" height="6" rx="3" fill="#3A3528"/><rect x="134" y="270" width="70" height="6" rx="3" fill="#2E2B27"/>
+  <g class="float1"><rect x="8" y="70" width="128" height="52" rx="12" fill="#1F1B13" stroke="#D4A64A" stroke-width="1.5"/>
+    <path d="M28 90v8a3 3 0 0 0 3 3h5l11 8V79l-11 8h-5a3 3 0 0 0-3 3z" fill="#D4A64A"/>
+    <text x="120" y="92" text-anchor="end" font-family="Readex Pro, sans-serif" font-size="13" fill="#F2EDE4" font-weight="600">إعلان ممول</text>
+    <text x="120" y="110" text-anchor="end" font-family="Readex Pro, sans-serif" font-size="10.5" fill="#A9A196">لعملاء أكثر</text></g>
+  <g class="float2"><rect x="238" y="150" width="136" height="54" rx="12" fill="#1F1B13" stroke="#3A3222" stroke-width="1.5"/>
+    <circle cx="354" cy="177" r="11" fill="#5CC98E"/><path d="M349 177l4 4 6-7" fill="none" stroke="#10301F" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="336" y="172" text-anchor="end" font-family="Readex Pro, sans-serif" font-size="12.5" fill="#F2EDE4" font-weight="600">رسالة جديدة</text>
+    <text x="336" y="190" text-anchor="end" font-family="Readex Pro, sans-serif" font-size="10.5" fill="#A9A196">«أبغى أطلب الباقة»</text></g>
+  <g class="float3"><rect x="22" y="252" width="118" height="80" rx="12" fill="#1F1B13" stroke="#3A3222" stroke-width="1.5"/>
+    <text x="126" y="272" text-anchor="end" font-family="Readex Pro, sans-serif" font-size="12" fill="#F2EDE4" font-weight="600">نمو المبيعات</text>
+    <rect x="36" y="306" width="12" height="16" rx="2" fill="#3A3222"/><rect x="54" y="298" width="12" height="24" rx="2" fill="#5A4A2A"/><rect x="72" y="290" width="12" height="32" rx="2" fill="#8A6E36"/><rect x="90" y="282" width="12" height="40" rx="2" fill="#D4A64A"/>
+    <path d="M112 300 l8-12 8 12" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg></div></div>
     </section>
     ${services.length ? `<section class="home-sec" aria-labelledby="svc-h">
       <div class="cat-head"><h2 id="svc-h">خدماتنا</h2><p>اختر الخدمة التي يحتاجها نشاطك، ونوصلك لباقاتها مباشرة.</p></div>
       <div class="svc-grid">${services.map(({ c }) => `<button class="svc" type="button" data-act="svc" data-f="${c.id}">${svcIcon(c.name)}<h3>${esc(c.name)}</h3>${c.description ? `<p>${esc(c.description)}</p>` : ""}<span>شاهد الباقات ←</span></button>`).join("")}</div>
     </section>` : ""}
+    <section class="home-sec" aria-labelledby="jr-h">
+      <div class="cat-head"><h2 id="jr-h">كيف نساعد مشروعك ينمو</h2><p>نمشي معك خطوة بخطوة، من فهم نشاطك لين تشوف النتائج.</p></div>
+      <div class="journey">
+        <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="20" y="20" width="110" height="80" rx="8" fill="#1F1B13" stroke="#3A3222"/><rect x="32" y="34" width="50" height="6" rx="3" fill="#3A3528"/><rect x="32" y="48" width="80" height="5" rx="2.5" fill="#2E2B27"/><rect x="32" y="60" width="66" height="5" rx="2.5" fill="#2E2B27"/><rect x="32" y="72" width="74" height="5" rx="2.5" fill="#2E2B27"/><circle cx="130" cy="72" r="26" fill="#171511" stroke="#D4A64A" stroke-width="5"/><path d="M149 91 l22 22" stroke="#D4A64A" stroke-width="8" stroke-linecap="round"/><circle cx="130" cy="72" r="12" fill="#D4A64A" fill-opacity=".25"/></svg></div><div class="jh"><span class="jn">١</span><h3>نفهم مشروعك</h3></div><p>ندرس نشاطك وجمهورك ومنافسيك، ونحدد وش يميّزك.</p></div>
+        <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="22" y="18" width="146" height="86" rx="8" fill="#1F1B13" stroke="#3A3222"/><path d="M22 40h146" stroke="#3A3222"/><circle cx="36" cy="29" r="3" fill="#3A3528"/><circle cx="46" cy="29" r="3" fill="#3A3528"/><rect x="36" y="52" width="34" height="40" rx="5" fill="#2A2416"/><rect x="78" y="52" width="34" height="40" rx="5" fill="#2A2416"/><rect x="120" y="52" width="34" height="40" rx="5" fill="#D4A64A" fill-opacity=".85"/><path d="M44 72l5 5 9-10" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round"/><path d="M86 72l5 5 9-10" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round"/><path d="M128 72h18M128 80h12" stroke="#171511" stroke-width="3" stroke-linecap="round"/></svg></div><div class="jh"><span class="jn">٢</span><h3>نبني الخطة</h3></div><p>خطة محتوى وإعلانات وميزانية واضحة، تناسب هدفك.</p></div>
+        <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="70" y="10" width="54" height="100" rx="10" fill="#1F1B13" stroke="#3A3222"/><rect x="78" y="24" width="38" height="38" rx="5" fill="#2A2416"/><path d="M84 54l9-10 7 6 10-12" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="78" y="70" width="30" height="4" rx="2" fill="#3A3528"/><rect x="78" y="80" width="22" height="4" rx="2" fill="#2E2B27"/><path d="M18 58v10a3 3 0 0 0 3 3h6l14 10V45L27 55h-6a3 3 0 0 0-3 3z" fill="#D4A64A"/><path d="M48 50a12 12 0 0 1 0 22" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round"/><rect x="136" y="30" width="42" height="30" rx="8" fill="#2A2416" stroke="#D4A64A"/><path d="M146 60 l-4 8 10-8" fill="#2A2416" stroke="#D4A64A"/><circle cx="148" cy="45" r="3" fill="#D4A64A"/><circle cx="157" cy="45" r="3" fill="#D4A64A"/><circle cx="166" cy="45" r="3" fill="#D4A64A"/><path d="M140 84 c4-6 12-6 14 0 c2-6 10-6 14 0 c0 8-14 14-14 14 s-14-6-14-14z" fill="#E06A5A"/></svg></div><div class="jh"><span class="jn">٣</span><h3>ننفّذ ونطلق</h3></div><p>نصمم وننشر ونطلق الإعلانات، ونتابع عملاءك المحتملين.</p></div>
+        <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="16" y="14" width="158" height="92" rx="8" fill="#1F1B13" stroke="#3A3222"/><path d="M32 30v62h128" fill="none" stroke="#3A3222" stroke-width="2"/><path d="M40 84 L68 70 L92 76 L120 52 L150 34" fill="none" stroke="#D4A64A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 84 L68 70 L92 76 L120 52 L150 34 L150 92 L40 92Z" fill="#D4A64A" fill-opacity=".12"/><circle cx="150" cy="34" r="6" fill="#D4A64A"/><path d="M142 26 l8-8 8 8" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-2)"/></svg></div><div class="jh"><span class="jn">٤</span><h3>نقيس ونطوّر</h3></div><p>تقارير واضحة بالأرقام، وتحسين مستمر عشان النمو ما يوقف.</p></div>
+      </div>
+    </section>
     <section class="home-sec" aria-labelledby="why-h">
       <div class="cat-head"><h2 id="why-h">لماذا أثر؟</h2></div>
       <div class="why-grid">
