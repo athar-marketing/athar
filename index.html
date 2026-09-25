@@ -30,6 +30,7 @@
 .faq summary::after{content:"+";color:var(--gold);font-size:1.3rem;line-height:1;flex:none}
 .faq details[open] summary::after{content:"−"}
 .faq details p{padding:0 16px 16px;color:var(--muted);font-size:.95rem;max-width:65ch}
+.legal-links a{color:var(--ink);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -63,7 +64,10 @@
   function add(){
     if(document.getElementById("faq")) return;
     var hero=app.querySelector(".hero"), foot=app.querySelector("footer.foot");
-    if(hero && foot) foot.insertAdjacentHTML("beforebegin",html);
+    if(hero && foot){
+      foot.insertAdjacentHTML("beforebegin",html);
+      foot.insertAdjacentHTML("beforeend",'<p class="legal-links"><a href="legal.html#terms">الشروط والأحكام</a> · <a href="legal.html#refund">الإلغاء والاسترجاع</a> · <a href="legal.html#privacy">سياسة الخصوصية</a></p>');
+    }
   }
   new MutationObserver(add).observe(app,{childList:true,subtree:true});
   add();
