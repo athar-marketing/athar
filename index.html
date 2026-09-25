@@ -11,12 +11,40 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
+<style>
+/* زرار الاستشارة المجانية */
+.wa-fab{position:fixed;left:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;background:#D4A64A;color:#121212;text-decoration:none;font-family:"Readex Pro",Tahoma,sans-serif;font-weight:700;font-size:.95rem;padding:11px 16px 11px 18px;border-radius:999px;box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 3px rgba(212,166,74,.18)}
+.wa-fab svg{width:22px;height:22px;flex:none}
+.wa-fab small{display:block;font-weight:500;font-size:.72rem;opacity:.75;line-height:1.1}
+.wa-fab span{line-height:1.25}
+.wa-fab:focus-visible{outline:2px solid #F2EDE4;outline-offset:3px}
+.wa-fab[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){.wa-fab{animation:wa-in .4s ease both .6s}@keyframes wa-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}
+</style>
 </head>
 <body>
 <div id="app"><div class="boot">جارٍ التحميل…</div></div>
 <div id="toast" class="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+<a id="wa-fab" class="wa-fab" href="https://wa.me/966510237273" target="_blank" rel="noopener" hidden>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20.5l1.8-5.2A8.4 8.4 0 1 1 21 11.5z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.2-1.2 2 .9-.4 1.6c-3.9.4-8-3.7-7.6-7.6l1.6-.4.9 2z" fill="currentColor" stroke="none"/></svg>
+<span>استشارة مجانية<small>تواصل معنا على واتساب</small></span>
+</a>
 <script src="app.js"></script>
+<script>
+(function(){
+  var b=document.getElementById("wa-fab");
+  var msg="السلام عليكم، أبغى استشارة مجانية عن تسويق نشاطي";
+  function upd(){
+    var n="966510237273";
+    try{ if(typeof settings!=="undefined" && settings.whatsapp) n=String(settings.whatsapp).replace(/\D/g,""); }catch(e){}
+    b.href="https://wa.me/"+n+"?text="+encodeURIComponent(msg);
+    b.hidden=/^#\/admin/.test(location.hash);
+  }
+  window.addEventListener("hashchange",upd);
+  upd(); setTimeout(upd,1500); setTimeout(upd,4000);
+})();
+</script>
 </body>
 </html>
