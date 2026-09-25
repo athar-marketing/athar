@@ -34,12 +34,12 @@ function toast(msg) {
 function friendly(err) {
   const m = (err && (err.message || err.error_description)) || "";
   if (/Invalid login credentials/i.test(m)) return "الإيميل أو كلمة المرور غير صحيحة.";
-  if (/already registered|already exists/i.test(m)) return "هذا الإيميل مسجّل من قبل. سجّلي الدخول بدلاً من إنشاء حساب.";
+  if (/already registered|already exists/i.test(m)) return "هذا الإيميل مسجّل من قبل. سجّل الدخول بدلاً من إنشاء حساب.";
   if (/Password should be at least/i.test(m)) return "كلمة المرور لازم تكون 6 أحرف أو أكثر.";
-  if (/Email not confirmed/i.test(m)) return "لم يتم تأكيد الإيميل بعد. افتحي بريدك واضغطي رابط التأكيد.";
-  if (/rate limit/i.test(m)) return "محاولات كثيرة. انتظري دقيقة ثم حاولي مرة أخرى.";
-  if (/network|fetch/i.test(m)) return "تعذّر الاتصال. تأكدي من الإنترنت وحاولي مرة أخرى.";
-  return m || "حدث خطأ غير متوقع. حاولي مرة أخرى.";
+  if (/Email not confirmed/i.test(m)) return "لم يتم تأكيد الإيميل بعد. افتح بريدك واضغط رابط التأكيد.";
+  if (/rate limit/i.test(m)) return "محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.";
+  if (/network|fetch/i.test(m)) return "تعذّر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.";
+  return m || "حدث خطأ غير متوقع. حاول مرة أخرى.";
 }
 function busy(btn, on, text) {
   if (!btn) return;
@@ -148,7 +148,7 @@ function viewAuth(mode) {
     <div class="field"><label for="a-pass">كلمة المرور</label><input id="a-pass" type="password" dir="ltr" autocomplete="${signup ? "new-password" : "current-password"}" required>${signup ? "<small>6 أحرف على الأقل</small>" : ""}</div>
     <p class="err" id="a-err" hidden></p>
     <button class="btn" type="submit" id="a-btn">${signup ? "إنشاء الحساب" : "دخول"}</button>
-    <p class="switch">${signup ? `عندك حساب؟ <a href="#/login">سجّلي الدخول</a>` : `ما عندك حساب؟ <a href="#/signup">أنشئ حساباً</a>`}</p>
+    <p class="switch">${signup ? `لديك حساب؟ <a href="#/login">سجّل الدخول</a>` : `ليس لديك حساب؟ <a href="#/signup">أنشئ حساباً</a>`}</p>
     <p class="switch"><a href="#/">← الرجوع للباقات</a></p>
   </form></div>`;
   document.getElementById("auth-form").addEventListener("submit", async e => {
@@ -157,8 +157,8 @@ function viewAuth(mode) {
     const showErr = t => { errEl.textContent = t; errEl.hidden = false; };
     errEl.hidden = true;
     const email = val("a-email"), password = document.getElementById("a-pass").value;
-    if (!email || !password) return showErr("اكتبي الإيميل وكلمة المرور.");
-    if (signup && !val("a-name")) return showErr("اكتبي اسمك.");
+    if (!email || !password) return showErr("اكتب الإيميل وكلمة المرور.");
+    if (signup && !val("a-name")) return showErr("اكتب اسمك.");
     busy(btn, true);
     try {
       if (signup) {
@@ -166,7 +166,7 @@ function viewAuth(mode) {
         if (error) throw error;
         if (!data.session) {
           busy(btn, false);
-          app.querySelector(".auth-box").innerHTML = `${brand()}<h1>تم إنشاء الحساب</h1><p class="muted">أرسلنا رابط تأكيد إلى <b dir="ltr">${esc(email)}</b>. افتحي بريدك واضغطي الرابط، ثم سجّلي الدخول.</p><a class="btn" href="#/login">تسجيل الدخول</a>`;
+          app.querySelector(".auth-box").innerHTML = `${brand()}<h1>تم إنشاء الحساب</h1><p class="muted">أرسلنا رابط تأكيد إلى <b dir="ltr">${esc(email)}</b>. افتح بريدك واضغط الرابط، ثم سجّل الدخول.</p><a class="btn" href="#/login">تسجيل الدخول</a>`;
           return;
         }
       } else {
@@ -220,7 +220,7 @@ function viewOrder(id) {
 function payInfo(o) {
   if (o.payment_status === "paid" || o.status === "cancelled") return "";
   const bank = settings.iban
-    ? `<span>حوّلي المبلغ إلى:</span><span>${esc(settings.bank_name || "")}${settings.bank_holder ? " · " + esc(settings.bank_holder) : ""}</span><b dir="ltr">${esc(settings.iban)}</b>`
+    ? `<span>حوّل المبلغ إلى:</span><span>${esc(settings.bank_name || "")}${settings.bank_holder ? " · " + esc(settings.bank_holder) : ""}</span><b dir="ltr">${esc(settings.iban)}</b>`
     : `<span>سنرسل لك بيانات التحويل البنكي على واتساب.</span>`;
   const msg = `السلام عليكم، طلبي رقم ${o.id} (${o.package_name}) بمبلغ ${o.price} ر.س. أرسلت إيصال التحويل.`;
   return `<div class="pay-box">${bank}<span>المبلغ: <b>${money(o.price)}</b></span>
@@ -232,9 +232,9 @@ async function viewAccount() {
   const just = sessionStorage.getItem("justOrdered"); sessionStorage.removeItem("justOrdered");
   app.innerHTML = `<div class="wrap">${topBar()}<div class="page">
     <div class="page-head"><h1>أهلاً ${esc(profile?.full_name || "")}</h1><a class="btn small" href="#/">طلب باقة جديدة</a></div>
-    ${just ? `<div class="panel" style="border-color:var(--ok)"><h2>تم استلام طلبك رقم ${num(just)}</h2><p class="muted">حوّلي المبلغ وأرسلي الإيصال، وسنبدأ التنفيذ خلال يومي عمل من تأكيد الدفع.</p></div>` : ""}
+    ${just ? `<div class="panel" style="border-color:var(--ok)"><h2>تم استلام طلبك رقم ${num(just)}</h2><p class="muted">حوّل المبلغ وأرسل الإيصال، وسنبدأ التنفيذ خلال 48 ساعة من تأكيد الدفع.</p></div>` : ""}
     <div class="panel"><h2>طلباتي</h2>
-      ${error ? `<p class="err">${esc(friendly(error))}</p>` : !orders.length ? `<div class="empty">لا توجد طلبات بعد. <a href="#/">تصفّحي الباقات</a></div>` :
+      ${error ? `<p class="err">${esc(friendly(error))}</p>` : !orders.length ? `<div class="empty">لا توجد طلبات بعد. <a href="#/">تصفّح الباقات</a></div>` :
       orders.map(o => `<div class="order">
         <div class="order-top"><div><h3>${esc(o.package_name)}</h3><div class="meta"><span>طلب رقم ${num(o.id)}</span><span>${date(o.created_at)}</span><span>${money(o.price)} ${esc(o.unit || "")}</span></div></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">${chip(o.status)}${payChip(o.payment_status)}</div></div>
