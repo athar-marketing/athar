@@ -1,0 +1,16 @@
+name: Keep Athar awake
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visit the database
+        run: |
+          curl -fsS -o /dev/null -w "Status: %{http_code}\n" \
+            "https://yfbfurznqcdgciopekjw.supabase.co/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: sb_publishable_TnLhlUMejplSEn6M9KJsbA_E2vaLJ8S"
