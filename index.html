@@ -13,13 +13,16 @@
 <link rel="stylesheet" href="style.css">
 <style>
 /* زرار الاستشارة المجانية */
-.wa-fab{position:fixed;left:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;background:#D4A64A;color:#121212;text-decoration:none;font-family:"Readex Pro",Tahoma,sans-serif;font-weight:700;font-size:.95rem;padding:11px 16px 11px 18px;border-radius:999px;box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 3px rgba(212,166,74,.18)}
-.wa-fab svg{width:22px;height:22px;flex:none}
+.wa-fab{position:fixed;left:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;background:#D4A64A;color:#121212;text-decoration:none;font-family:"Readex Pro",Tahoma,sans-serif;font-weight:700;font-size:.95rem;height:54px;padding:0 15px;border-radius:999px;box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 3px rgba(212,166,74,.18);direction:ltr}
+.wa-fab svg{width:24px;height:24px;flex:none}
+.wa-fab span{direction:rtl;display:block;max-width:0;overflow:hidden;white-space:nowrap;opacity:0;line-height:1.25;transition:max-width .45s ease,opacity .3s ease,margin .45s ease}
+.wa-fab.open span{max-width:200px;opacity:1;margin-left:10px;margin-right:4px}
 .wa-fab small{display:block;font-weight:500;font-size:.72rem;opacity:.75;line-height:1.1}
-.wa-fab span{line-height:1.25}
 .wa-fab:focus-visible{outline:2px solid #F2EDE4;outline-offset:3px}
 .wa-fab[hidden]{display:none}
-@media (prefers-reduced-motion:no-preference){.wa-fab{animation:wa-in .4s ease both .6s}@keyframes wa-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}
+footer.foot{padding-bottom:100px}
+@media (prefers-reduced-motion:no-preference){.wa-fab{animation:wa-in .5s ease both .8s}@keyframes wa-in{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}}
+@media (prefers-reduced-motion:reduce){.wa-fab span{transition:none}}
 /* الأسئلة الشائعة */
 .faq{padding-block:40px 10px;display:grid;gap:14px}
 .faq h2{font-size:1.5rem}
@@ -38,7 +41,7 @@
 <div id="toast" class="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
-<a id="wa-fab" class="wa-fab" href="https://wa.me/966510237273" target="_blank" rel="noopener" hidden>
+<a id="wa-fab" class="wa-fab" href="https://wa.me/966510237273" target="_blank" rel="noopener" aria-label="استشارة مجانية على واتساب" hidden>
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20.5l1.8-5.2A8.4 8.4 0 1 1 21 11.5z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.2-1.2 2 .9-.4 1.6c-3.9.4-8-3.7-7.6-7.6l1.6-.4.9 2z" fill="currentColor" stroke="none"/></svg>
 <span>استشارة مجانية<small>تواصل معنا على واتساب</small></span>
 </a>
@@ -53,6 +56,8 @@
     b.href="https://wa.me/"+n+"?text="+encodeURIComponent(msg);
     b.hidden=/^#\/admin/.test(location.hash);
   }
+  setTimeout(function(){ b.classList.add("open"); },3000);
+  setTimeout(function(){ b.classList.remove("open"); },9000);
   window.addEventListener("hashchange",upd);
   upd(); setTimeout(upd,1500); setTimeout(upd,4000);
 })();
