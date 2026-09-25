@@ -34,6 +34,13 @@ footer.foot{padding-bottom:100px}
 .faq details[open] summary::after{content:"−"}
 .faq details p{padding:0 16px 16px;color:var(--muted);font-size:.95rem;max-width:65ch}
 .legal-links a{color:var(--ink);text-underline-offset:3px}
+/* رسالة الأمان في التسجيل */
+.trust{border:1px solid var(--line);background:#161512;border-radius:12px;padding:12px 14px;display:grid;gap:6px;font-size:.86rem;color:var(--muted);line-height:1.7}
+.trust b{color:var(--ink);font-family:var(--display);font-weight:500;font-size:.92rem}
+.trust ul{margin:0;padding-inline-start:18px;display:grid;gap:2px}
+.trust li::marker{color:var(--gold)}
+.trust a{color:var(--gold)}
+.field .pass-hint,.pass-hint{display:block;font-size:.8rem;color:var(--gold);margin-top:2px}
 </style>
 </head>
 <body>
@@ -76,6 +83,27 @@ footer.foot{padding-bottom:100px}
   }
   new MutationObserver(add).observe(app,{childList:true,subtree:true});
   add();
+})();
+</script>
+<script>
+(function(){
+  var app=document.getElementById("app");
+  function addTrust(){
+    var f=document.getElementById("auth-form");
+    if(!f || f.querySelector(".trust")) return;
+    var btn=document.getElementById("a-btn"); if(!btn) return;
+    var signup=!!document.getElementById("a-name");
+    var pass=document.getElementById("a-pass");
+    if(signup && pass && !f.querySelector(".pass-hint")) pass.insertAdjacentHTML("afterend",'<small class="pass-hint">اختر كلمة مرور جديدة خاصة بحسابك في أثر، وليست كلمة مرور بريدك الإلكتروني.</small>');
+    btn.insertAdjacentHTML("afterend",'<div class="trust"><b>🔒 بياناتك في أمان</b><ul>'
+      +'<li>الاتصال بالموقع مشفّر بالكامل.</li>'
+      +'<li>كلمة المرور محفوظة بشكل مشفّر، ولا يستطيع أحد الاطلاع عليها، بما في ذلك فريقنا.</li>'
+      +'<li>لا نصل إلى بريدك الإلكتروني ولا نطلب كلمة مروره، ونستخدم عنوانه فقط لتسجيل دخولك ومتابعة طلباتك.</li>'
+      +'<li>لا نبيع بياناتك ولا نشاركها مع أي جهة، ويمكنك طلب حذف حسابك في أي وقت.</li>'
+      +'</ul><a href="legal.html#privacy">سياسة الخصوصية</a></div>');
+  }
+  new MutationObserver(addTrust).observe(app,{childList:true,subtree:true});
+  addTrust();
 })();
 </script>
 </body>
