@@ -20,6 +20,16 @@
 .wa-fab:focus-visible{outline:2px solid #F2EDE4;outline-offset:3px}
 .wa-fab[hidden]{display:none}
 @media (prefers-reduced-motion:no-preference){.wa-fab{animation:wa-in .4s ease both .6s}@keyframes wa-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}
+/* الأسئلة الشائعة */
+.faq{padding-block:40px 10px;display:grid;gap:14px}
+.faq h2{font-size:1.5rem}
+.faq-list{display:grid;gap:10px;max-width:760px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;font-family:var(--display);font-weight:500;font-size:1rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--gold);font-size:1.3rem;line-height:1;flex:none}
+.faq details[open] summary::after{content:"−"}
+.faq details p{padding:0 16px 16px;color:var(--muted);font-size:.95rem;max-width:65ch}
 </style>
 </head>
 <body>
@@ -44,6 +54,19 @@
   }
   window.addEventListener("hashchange",upd);
   upd(); setTimeout(upd,1500); setTimeout(upd,4000);
+})();
+</script>
+<script>
+(function(){
+  var html='<section class="faq" id="faq"><div class="cat-head"><h2>الأسئلة الشائعة</h2></div><div class="faq-list">'+'<details><summary>هل السعر المعروض هو السعر النهائي؟</summary><p>نعم. السعر المعروض على كل باقة هو المبلغ الذي تدفعه، بدون أي رسوم إضافية.</p></details><details><summary>هل ميزانية الإعلانات داخلة في سعر الباقة؟</summary><p>لا. ميزانية الإعلانات تُدفع للمنصة مباشرة من حسابك، ولا نأخذ منها أي نسبة. نقترح عليك الميزانية المناسبة لنشاطك وأهدافك قبل البدء.</p></details><details><summary>متى تبدأون العمل؟</summary><p>نبدأ خلال 48 ساعة من تأكيد الدفع واستلام بيانات نشاطك.</p></details><details><summary>كم تعديلاً يشمل التصميم؟</summary><p>يشمل كل تصميم تعديلين مجاناً.</p></details><details><summary>كيف أدفع؟</summary><p>بعد إرسال طلبك تظهر لك طريقة الدفع وخطواتها في صفحة الطلب داخل حسابك.</p></details><details><summary>هل الاشتراك ملزم لمدة طويلة؟</summary><p>لا. الاشتراك شهري، ويمكنك إيقافه قبل نهاية الشهر دون أي رسوم. وإذا اشتركت لعدة أشهر بسعر مخفّض ثم أردت الإيقاف، نعيد لك قيمة الأشهر المتبقية بعد خصم فرق التخفيض.</p></details><details><summary>هل تحتاجون كلمة مرور حساباتي؟</summary><p>لا. نطلب صلاحية إدارة عبر الأدوات الرسمية للمنصات مثل Meta Business Suite، ويبقى الحساب ملكاً لك بالكامل، ويمكنك إلغاء الصلاحية في أي وقت.</p></details><details><summary>ماذا لو لم يعجبني العمل؟</summary><p>نعدّل العمل حسب ملاحظاتك في حدود التعديلات المشمولة في باقتك. وإذا طلبت الإلغاء قبل أن نبدأ التنفيذ، نعيد لك المبلغ كاملاً.</p></details><details><summary>هل يمكن تجهيز باقة خاصة بنشاطي؟</summary><p>نعم. تواصل معنا على واتساب من زر الاستشارة المجانية، ونجهز لك باقة تناسب نشاطك وميزانيتك.</p></details>'+'</div></section>';
+  var app=document.getElementById("app");
+  function add(){
+    if(document.getElementById("faq")) return;
+    var hero=app.querySelector(".hero"), foot=app.querySelector("footer.foot");
+    if(hero && foot) foot.insertAdjacentHTML("beforebegin",html);
+  }
+  new MutationObserver(add).observe(app,{childList:true,subtree:true});
+  add();
 })();
 </script>
 </body>
