@@ -360,9 +360,10 @@ const ICONS = {
   customers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.3 0 4 1.5 4.6 4"/></svg>',
   packages: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3.5 7.5 12 12l8.5-4.5L12 3Z"/><path d="M3.5 7.5v9L12 21l8.5-4.5v-9"/><path d="M12 12v9"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>',
+  leads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4Z"/></svg>',
   store: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16l-1-5H5L4 9Z"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg>',
 };
-const MENU = [["dashboard", "لوحة القيادة"], ["orders", "الطلبات"], ["customers", "العملاء"], ["packages", "الباقات"], ["settings", "الإعدادات"]];
+const MENU = [["dashboard", "لوحة القيادة"], ["orders", "الطلبات"], ["leads", "العملاء المحتملون"], ["customers", "العملاء"], ["packages", "الباقات"], ["settings", "الإعدادات"]];
 
 function shell(section, content) {
   app.innerHTML = `<div class="shell" id="shell">
@@ -382,9 +383,11 @@ const setPage = html => { const el = document.getElementById("admin-page"); if (
 
 async function adminDashboard() {
   shell("dashboard", `<div class="boot">جارٍ التحميل…</div>`);
-  const [{ data: orders }, { count: customers }] = await Promise.all([
+  const today = new Date().toISOString().slice(0, 10);
+  const [{ data: orders }, { count: customers }, { count: dueLeads }] = await Promise.all([
     sb.from("orders").select("id,package_name,price,status,payment_status,created_at,profiles(full_name)").order("created_at", { ascending: false }),
     sb.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer"),
+    sb.from("leads").select("id", { count: "exact", head: true }).lte("next_follow_up", today).not("stage", "in", "(won,lost)"),
   ]);
   const o = orders || [];
   const now = new Date(), monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -397,6 +400,7 @@ async function adminDashboard() {
       <div class="stat"><span>مبيعات مدفوعة هذا الشهر</span><b>${money(paidMonth)}</b></div>
       <div class="stat"><span>مبالغ بانتظار الدفع</span><b>${money(unpaid)}</b></div>
       <div class="stat"><span>العملاء</span><b>${num(customers || 0)}</b></div>
+      <a class="stat" href="#/admin/leads" style="text-decoration:none;color:inherit${dueLeads ? ";border-color:var(--gold)" : ""}"><span>متابعات اليوم</span><b>${num(dueLeads || 0)}</b></a>
     </div>
     <div class="panel"><div class="page-head"><h2>آخر الطلبات</h2><a class="btn ghost small" href="#/admin/orders">كل الطلبات</a></div>
       ${ordersTable(o.slice(0, 6))}</div>`);
@@ -446,6 +450,86 @@ async function openOrder(id) {
     busy(btn, false);
     if (error) return toast(friendly(error));
     closeModal(); toast("تم تحديث الطلب."); route();
+  });
+}
+
+/* ================= CRM: LEADS ================= */
+const STAGES = { new: "جديد", contacted: "تواصلنا", quoted: "أرسلنا عرض سعر", won: "اشترى", lost: "غير مهتم" };
+const STAGE_CLASS = { new: "s-new", contacted: "s-in_progress", quoted: "st-quoted", won: "s-delivered", lost: "s-cancelled" };
+const SOURCES = { whatsapp: "واتساب", instagram: "إنستقرام", tiktok: "تيك توك", snapchat: "سناب شات", x: "إكس", website: "الموقع", referral: "معرفة / توصية", other: "أخرى" };
+const CRM_CSS = `.st-quoted{background:#2E2440;color:#C4A8F0}.due-late{color:var(--danger);font-weight:600}.due-today{color:var(--gold);font-weight:600}.lead-sub{color:var(--muted);font-size:.82rem}`;
+let leadFilter = "open";
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const waNum = ph => String(ph || "").replace(/\D/g, "").replace(/^0/, "966");
+function dueLabel(d) {
+  if (!d) return `<span class="muted">—</span>`;
+  const t = todayISO();
+  if (d < t) return `<span class="due-late">متأخر · ${date(d)}</span>`;
+  if (d === t) return `<span class="due-today">اليوم</span>`;
+  return date(d);
+}
+async function adminLeads() {
+  if (!document.getElementById("crm-css")) { const st = document.createElement("style"); st.id = "crm-css"; st.textContent = CRM_CSS; document.head.appendChild(st); }
+  shell("leads", `<div class="boot">جارٍ التحميل…</div>`);
+  const { data, error } = await sb.from("leads").select("*").order("next_follow_up", { ascending: true, nullsFirst: false }).order("created_at", { ascending: false });
+  const all = data || [], t = todayISO();
+  const open = all.filter(l => l.stage !== "won" && l.stage !== "lost");
+  const due = open.filter(l => l.next_follow_up && l.next_follow_up <= t);
+  const pipeline = open.reduce((a, l) => a + Number(l.expected_value || 0), 0);
+  const list = leadFilter === "open" ? open : leadFilter === "due" ? due : leadFilter === "all" ? all : all.filter(l => l.stage === leadFilter);
+  const f = [["open", `المفتوحون (${num(open.length)})`], ["due", `متابعات اليوم (${num(due.length)})`], ...Object.entries(STAGES).map(([k, v]) => [k, `${v} (${num(all.filter(l => l.stage === k).length)})`]), ["all", "الكل"]];
+  setPage(`<div class="page-head"><h1>العملاء المحتملون</h1><button class="btn small" data-act="edit-lead" data-id="">+ عميل محتمل</button></div>
+    <div class="stats">
+      <div class="stat"><span>مفتوحون</span><b>${num(open.length)}</b></div>
+      <div class="stat"${due.length ? ' style="border-color:var(--gold)"' : ""}><span>متابعات اليوم</span><b>${num(due.length)}</b></div>
+      <div class="stat"><span>قيمة متوقعة</span><b>${money(pipeline)}</b></div>
+      <div class="stat"><span>اشتروا</span><b>${num(all.filter(l => l.stage === "won").length)}</b></div>
+    </div>
+    <div class="filters">${f.map(([k, l]) => `<button class="tab" data-act="lead-filter" data-f="${k}" aria-pressed="${leadFilter === k}">${l}</button>`).join("")}</div>
+    ${error ? `<p class="err">${esc(friendly(error))}</p>` : !list.length ? `<div class="empty">${all.length ? "لا يوجد عملاء في هذا الفلتر." : "لا يوجد عملاء محتملون بعد. أضيفي أول واحد من زر «+ عميل محتمل»، أو هيتضافوا تلقائياً لما حد يسجّل في الموقع."}</div>` :
+    `<div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>المصدر</th><th>مهتم بـ</th><th>المرحلة</th><th>المتابعة الجاية</th><th>القيمة</th></tr></thead><tbody>
+    ${list.map(l => `<tr class="link" data-act="edit-lead" data-id="${l.id}"><td><b>${esc(l.full_name)}</b>${l.business ? `<div class="lead-sub">${esc(l.business)}</div>` : ""}</td>
+      <td dir="ltr" style="text-align:right">${l.phone ? `<a href="https://wa.me/${esc(waNum(l.phone))}" target="_blank" rel="noopener" data-stop="1">${esc(l.phone)}</a>` : "—"}</td>
+      <td>${esc(SOURCES[l.source] || l.source)}</td><td>${esc(l.interest || "—")}</td>
+      <td><span class="chip ${STAGE_CLASS[l.stage] || ""}">${STAGES[l.stage] || l.stage}</span></td>
+      <td>${dueLabel(l.next_follow_up)}</td><td class="num">${l.expected_value ? money(l.expected_value) : "—"}</td></tr>`).join("")}
+    </tbody></table></div>`}`);
+}
+async function editLead(id) {
+  let l = { full_name: "", phone: "", business: "", source: "whatsapp", interest: "", stage: "new", expected_value: "", next_follow_up: todayISO(), notes: "" };
+  if (id) { const { data, error } = await sb.from("leads").select("*").eq("id", id).single(); if (error) return toast(friendly(error)); l = data; }
+  const opt = (obj, cur) => Object.entries(obj).map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${v}</option>`).join("");
+  const services = cats.filter(c => !c.is_bundle).map(c => c.name).concat(["باقة مجمّعة", "غير محدد"]);
+  const m = modal(id ? "العميل المحتمل" : "عميل محتمل جديد", `<form class="form" id="lead-form">
+    <div class="two"><div class="field"><label for="l-name">الاسم</label><input id="l-name" value="${esc(l.full_name)}" required></div>
+    <div class="field"><label for="l-phone">الجوال / واتساب</label><input id="l-phone" dir="ltr" value="${esc(l.phone || "")}" placeholder="05XXXXXXXX"></div></div>
+    <div class="two"><div class="field"><label for="l-biz">النشاط</label><input id="l-biz" value="${esc(l.business || "")}" placeholder="مثال: متجر عطور"></div>
+    <div class="field"><label for="l-src">جاء من</label><select id="l-src">${opt(SOURCES, l.source)}</select></div></div>
+    <div class="two"><div class="field"><label for="l-int">مهتم بـ</label><select id="l-int"><option value="">—</option>${services.map(n => `<option ${n === l.interest ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>
+    <div class="field"><label for="l-val">القيمة المتوقعة (ر.س)</label><input id="l-val" type="number" inputmode="decimal" value="${esc(l.expected_value || "")}"></div></div>
+    <div class="two"><div class="field"><label for="l-stage">المرحلة</label><select id="l-stage">${opt(STAGES, l.stage)}</select></div>
+    <div class="field"><label for="l-due">المتابعة الجاية</label><input id="l-due" type="date" value="${esc(l.next_follow_up || "")}"></div></div>
+    <div class="field"><label for="l-notes">ملاحظات</label><textarea id="l-notes" placeholder="اتكلمنا إمتى، قال إيه، محتاج إيه">${esc(l.notes || "")}</textarea></div>
+    ${l.phone ? `<a class="btn small ghost" style="justify-self:start" target="_blank" rel="noopener" href="https://wa.me/${esc(waNum(l.phone))}">مراسلة على واتساب</a>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="submit" id="l-btn">حفظ</button>
+    ${id ? `<button class="btn danger" type="button" id="l-del">حذف</button>` : ""}</div></form>`);
+  m.querySelector("#lead-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!val("l-name")) return toast("اكتبي الاسم.");
+    const row = { full_name: val("l-name"), phone: val("l-phone") || null, business: val("l-biz") || null, source: val("l-src"), interest: val("l-int") || null,
+      expected_value: val("l-val") ? Number(val("l-val")) : null, stage: val("l-stage"), next_follow_up: val("l-due") || null, notes: val("l-notes") || null };
+    const btn = m.querySelector("#l-btn"); busy(btn, true);
+    const { error } = id ? await sb.from("leads").update(row).eq("id", id) : await sb.from("leads").insert(row);
+    busy(btn, false);
+    if (error) return toast(friendly(error));
+    closeModal(); toast("تم الحفظ."); adminLeads();
+  });
+  m.querySelector("#l-del")?.addEventListener("click", async e => {
+    const b = e.currentTarget;
+    if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "اضغطي مرة ثانية لتأكيد الحذف"; return; }
+    const { error } = await sb.from("leads").delete().eq("id", id);
+    if (error) return toast(friendly(error));
+    closeModal(); toast("تم الحذف."); adminLeads();
   });
 }
 
@@ -578,6 +662,7 @@ async function route() {
     if (!isAdmin()) { toast("هذه الصفحة للإدارة فقط."); return go("#/account"); }
     const s = sub || "dashboard";
     if (s === "orders") return adminOrders();
+    if (s === "leads") return adminLeads();
     if (s === "customers") return adminCustomers();
     if (s === "packages") return adminPackages();
     if (s === "settings") return adminSettings();
@@ -598,6 +683,8 @@ app.addEventListener("click", async e => {
   else if (act === "menu") document.getElementById("shell")?.classList.toggle("open");
   else if (act === "order-filter") { orderFilter = b.dataset.f; adminOrders(); }
   else if (act === "open-order") openOrder(b.dataset.id);
+  else if (act === "lead-filter") { leadFilter = b.dataset.f; adminLeads(); }
+  else if (act === "edit-lead") { if (e.target.closest("[data-stop]")) return; editLead(b.dataset.id); }
   else if (act === "edit-cat") editCat(b.dataset.id);
   else if (act === "edit-pkg") editPkg(b.dataset.id, b.dataset.cat);
 });
