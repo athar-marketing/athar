@@ -680,7 +680,14 @@ function adminSettings() {
       <div class="field"><label for="s-holder">اسم صاحب الحساب</label><input id="s-holder" value="${esc(s.bank_holder || "")}"></div></div>
       <div class="field"><label for="s-iban">رقم الآيبان</label><input id="s-iban" dir="ltr" value="${esc(s.iban || "")}" placeholder="SA00 0000 0000 0000 0000 0000"></div>
       <button class="btn" type="submit" id="s-btn" style="justify-self:start">حفظ الإعدادات</button>
-    </form>`);
+    </form>
+    <div class="panel form" style="max-width:640px;margin-top:16px">
+      <h2>النسخة الاحتياطية</h2>
+      <p class="muted" style="font-size:.9rem">ملف Excel فيه كل بياناتك: الطلبات، والعملاء، والعملاء المحتملون، والباقات، والأقسام، والإعدادات. نزّليه مرة كل أسبوع واحفظيه في Google Drive.</p>
+      <p class="muted" style="font-size:.85rem">آخر نسخة من الجهاز ده: <b>${esc(lastBackup())}</b></p>
+      <button class="btn" type="button" id="bk-btn" style="justify-self:start">تنزيل نسخة احتياطية</button>
+    </div>`);
+  document.getElementById("bk-btn").addEventListener("click", e => downloadBackup(e.currentTarget));
   document.getElementById("set-form").addEventListener("submit", async e => {
     e.preventDefault();
     const wa = val("s-wa").replace(/\D/g, "");
@@ -692,6 +699,44 @@ function adminSettings() {
     if (error) return toast(friendly(error));
     Object.assign(settings, row); toast("تم حفظ الإعدادات."); adminSettings();
   });
+}
+
+/* ================= BACKUP ================= */
+const BK_TABLES = [["orders", "الطلبات"], ["profiles", "العملاء"], ["leads", "العملاء المحتملون"], ["packages", "الباقات"], ["categories", "الأقسام"], ["settings", "الإعدادات"]];
+const BK_COLS = { id: "الرقم", full_name: "الاسم", name: "الاسم", phone: "الجوال", email: "الإيميل", role: "النوع", created_at: "تاريخ الإنشاء", updated_at: "آخر تعديل", package_name: "الباقة", price: "السعر", unit: "الوحدة", status: "الحالة", payment_status: "الدفع", business: "النشاط", notes: "ملاحظات", admin_note: "ملاحظة الإدارة", customer_id: "رقم العميل", package_id: "رقم الباقة", description: "الوصف", features: "المميزات", tier: "المستوى", popular: "الأكثر طلباً", active: "ظاهرة", sort: "الترتيب", category_id: "رقم القسم", is_bundle: "باقة مجمّعة", source: "المصدر", interest: "مهتم بـ", stage: "المرحلة", expected_value: "القيمة المتوقعة", next_follow_up: "المتابعة الجاية" };
+function lastBackup() {
+  let v = null; try { v = localStorage.getItem("athar_last_backup"); } catch (e) {}
+  return v ? new Date(v).toLocaleString("ar-SA-u-nu-latn", { dateStyle: "medium", timeStyle: "short" }) : "لم تُنزَّل بعد";
+}
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const t = document.createElement("script");
+    t.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    t.onload = res; t.onerror = () => rej(new Error("تعذّر تحميل أداة Excel. تأكدي من الإنترنت وجربي تاني."));
+    document.head.appendChild(t);
+  });
+}
+async function downloadBackup(btn) {
+  busy(btn, true, "بجهّز الملف…");
+  try {
+    await loadXLSX();
+    const wb = XLSX.utils.book_new(); let total = 0;
+    for (const [t, label] of BK_TABLES) {
+      const { data, error } = await sb.from(t).select("*");
+      if (error) throw error;
+      const rows = (data || []).map(r => { const o = {}; for (const k in r) { let v = r[k]; if (Array.isArray(v)) v = v.join(" • "); else if (v && typeof v === "object") v = JSON.stringify(v); o[BK_COLS[k] || k] = v; } return o; });
+      total += rows.length;
+      const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([["لا توجد بيانات"]]);
+      XLSX.utils.book_append_sheet(wb, ws, label);
+    }
+    wb.Workbook = { Views: [{ RTL: true }] };
+    XLSX.writeFile(wb, `athar-backup-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    try { localStorage.setItem("athar_last_backup", new Date().toISOString()); } catch (e) {}
+    busy(btn, false);
+    toast(`تم تنزيل النسخة الاحتياطية (${total} صف).`);
+    adminSettings();
+  } catch (err) { busy(btn, false); toast(friendly(err) || "تعذّر تنزيل النسخة. جربي تاني."); }
 }
 
 /* ================= ROUTER ================= */
