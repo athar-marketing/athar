@@ -77,7 +77,7 @@ async function loadCatalog() {
   settings = s.data || {};
   cats = c.data || [];
   pkgs = p.data || [];
-  document.title = (settings.store_name || "أثر") + " | باقات التسويق";
+  document.title = (settings.store_name || "أثر") + " للتسويق | إعلانات ممولة وتصميم وإدارة حسابات في السعودية";
 }
 const isAdmin = () => profile && profile.role === "admin";
 const storeName = () => settings.store_name || "أثر";
@@ -147,6 +147,34 @@ const HOME_CSS = `
 .jstep .jh{display:flex;align-items:center;gap:8px}
 .jstep h3{font-size:1.05rem}
 .jstep p{color:var(--muted);font-size:.92rem}
+.snav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(18,18,18,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px}
+.snav-in{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.snav-in::-webkit-scrollbar{display:none}
+.snav button{flex:none;font:inherit;font-family:var(--display);font-weight:500;font-size:.9rem;color:var(--muted);background:transparent;border:1px solid transparent;border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+.snav button:hover,.snav button:focus-visible{color:var(--ink);border-color:var(--line)}
+.snav button.on{color:var(--accent-ink);background:var(--gold)}
+#home,#services,#journey,#works,#packages,#faq,#contact{scroll-margin-top:64px}
+.works{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:760px){.works{grid-template-columns:1fr}}
+.work{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:12px}
+.work-h{display:flex;align-items:center;gap:10px}
+.work-logo{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.1rem;flex:none}
+.work-h h3{font-size:1.02rem}
+.work-h p{color:var(--muted);font-size:.84rem}
+.work-tag{margin-inline-start:auto;font-size:.72rem;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.mps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mp{aspect-ratio:4/5;border-radius:10px;background:var(--b);color:var(--i);padding:9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;font-family:var(--display);line-height:1.25}
+.mp small{font-family:var(--body);font-size:.6rem;opacity:.85}
+.mp b{font-size:clamp(.78rem,2.6vw,.95rem);font-weight:700}
+.mp .a{color:var(--a)}
+.mp .pl{align-self:flex-start;background:var(--a);color:var(--b);font-family:var(--body);font-size:.56rem;border-radius:999px;padding:1px 7px}
+.mp .ft{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:4px;font-family:var(--body);font-size:.58rem}
+.mp .ic{flex:1;display:grid;place-items:center;min-height:0}
+.mp .ic svg{width:46%;max-height:100%}
+.mp .ba{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:6px;overflow:hidden}
+.mp .ba span{display:grid;place-items:end center;padding-bottom:4px;font-family:var(--body);font-size:.55rem}
+.mp .dots{display:flex;gap:3px}.mp .dots i{width:5px;height:5px;border-radius:50%;background:var(--a);opacity:.4}.mp .dots i:first-child{opacity:1}
+.works-note{color:var(--muted);font-size:.86rem}
 `;
 const SVC_ICONS = [
   [/إعلان/, '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M18 6a8 8 0 0 1 0 12"/>'],
@@ -168,6 +196,37 @@ const HOME_FAQ = [
   ["ماذا لو لم يعجبني العمل؟", "نعدّل العمل حسب ملاحظاتك في حدود التعديلات المشمولة في باقتك. وإذا طلبت الإلغاء قبل أن نبدأ التنفيذ، نعيد لك المبلغ كاملاً."],
   ["هل يمكن تجهيز باقة خاصة بنشاطي؟", "نعم. تواصل معنا على واتساب من زر الاستشارة المجانية، ونجهز لك باقة تناسب نشاطك وميزانيتك."],
 ];
+const WK_ICON = {
+  cup: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18h24v12a10 10 0 0 1-10 10h-4a10 10 0 0 1-10-10z"/><path d="M34 22h3a5 5 0 0 1 0 10h-3"/><path d="M17 6c-2 3 2 5 0 8M24 6c-2 3 2 5 0 8"/></svg>',
+  play: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><path d="M20 16l12 8-12 8z" fill="currentColor"/></svg>',
+  bottle: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="19" y="4" width="10" height="7" rx="2"/><path d="M21 11v4M27 11v4"/><rect x="11" y="15" width="26" height="29" rx="7"/><path d="M18 30h12"/></svg>',
+  leaf: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 38C10 20 22 8 40 8c0 18-12 30-30 30z"/><path d="M10 38L28 20"/></svg>',
+  clock: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="24" cy="24" r="17"/><path d="M24 14v10l7 5"/></svg>'
+};
+const wk = (name, type, logo, lc, posts) => `<article class="work"><div class="work-h"><span class="work-logo" style="background:${lc[0]};color:${lc[1]}">${logo}</span><div><h3>${name}</h3><p>${type}</p></div><span class="work-tag">نموذج توضيحي</span></div><div class="mps">${posts.join("")}</div></article>`;
+const mp = (b, i, a, inner) => `<div class="mp" style="--b:${b};--i:${i};--a:${a}" aria-hidden="true">${inner}</div>`;
+const WORKS = [
+  wk("مِرفا", "قهوة مختصة", "م", ["#3B2417", "#EFE3D0"], [
+    mp("#EFE3D0", "#3B2417", "#C8662E", `<span class="pl">جديد</span><b>V60 إثيوبي</b><div class="ic" style="color:#C8662E">${WK_ICON.cup}</div><div class="ft"><small>توت · ياسمين</small><b class="a">18 ر.س</b></div>`),
+    mp("#3B2417", "#EFE3D0", "#E39A5B", `<small>كل خميس</small><b>قهوتك الثانية <span class="a">علينا</span></b><div class="ft"><small>@mirfa</small><span class="pl">لفترة محدودة</span></div>`),
+    mp("#C8662E", "#FFF4E8", "#3B2417", `<span class="pl">ريلز</span><div class="ic">${WK_ICON.play}</div><b>كيف نحمّص البن؟</b>`)
+  ]),
+  wk("دار نَدى", "عطور وعود", "ن", ["#2A1630", "#D8B26E"], [
+    mp("#2A1630", "#F3E9F5", "#D8B26E", `<small class="a">مجموعة الشتاء</small><b>عود كمبودي</b><div class="ic" style="color:#D8B26E">${WK_ICON.bottle}</div><div class="ft"><small>ثبات يدوم</small><small>50 مل</small></div>`),
+    mp("#D8B26E", "#2A1630", "#2A1630", `<b>توصيل مجاني</b><small>للطلبات فوق 200 ر.س</small><div class="ft"><small>لجميع مدن المملكة</small></div>`),
+    mp("#4A2A52", "#F3E9F5", "#D8B26E", `<small class="a">اختبار سريع</small><b>أي عطر يشبهك؟</b><div class="ft"><small>اسحب ←</small><span class="dots"><i></i><i></i><i></i><i></i></span></div>`)
+  ]),
+  wk("صالون لُجين", "صالون ومشغل نسائي", "ل", ["#A63A55", "#F7DDE0"], [
+    mp("#F7DDE0", "#4A1D2A", "#A63A55", `<span class="pl">احجزي مبكراً</span><b>باقة <span class="a">العروس</span></b><small>شعر · مكياج · عناية</small><div class="ft"><small>بالموعد فقط</small></div>`),
+    mp("#4A1D2A", "#F7DDE0", "#E7A3B3", `<div class="ba"><span style="background:linear-gradient(160deg,#6B4A3A,#3A2A24)">قبل</span><span style="background:linear-gradient(160deg,#C98B6B,#7A4A3A)">بعد</span></div><b>صبغة <span class="a">بلياج</span></b>`),
+    mp("#A63A55", "#FFF0F3", "#F7DDE0", `<div class="ic">${WK_ICON.clock}</div><b>مواعيدنا</b><small>السبت – الخميس</small><small>10 ص – 10 م</small>`)
+  ]),
+  wk("سبا سَكينة", "سبا ومركز عناية", "س", ["#2F4A3F", "#DCE6DD"], [
+    mp("#DCE6DD", "#2F4A3F", "#B08B62", `<small class="a">جلسة استرخاء</small><b>مساج بالأحجار الدافئة</b><div class="ic" style="color:#6E8F7E">${WK_ICON.leaf}</div><div class="ft"><small>60 دقيقة</small></div>`),
+    mp("#2F4A3F", "#EEF3EE", "#C9A27A", `<span class="pl">نهاية الأسبوع</span><b>حمّام مغربي <span class="a">+ مساج</span></b><div class="ft"><small>احجزي من الرابط</small></div>`),
+    mp("#C9A27A", "#24372F", "#2F4A3F", `<b>3 عادات لبشرة صحية</b><small>١. شرب الماء</small><small>٢. واقي الشمس</small><small>٣. نوم كافٍ</small><div class="ft"><small>احفظ البوست</small></div>`)
+  ])
+].join("");
 function viewStore() {
   if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
@@ -175,7 +234,10 @@ function viewStore() {
   const consult = settings.whatsapp ? waLink("السلام عليكم، أبغى استشارة مجانية عن تسويق نشاطي") : "";
   app.innerHTML = `<div class="wrap">
     ${topBar()}
-    <section class="hero2">
+    <nav class="snav" aria-label="أقسام الموقع"><div class="snav-in">
+      ${[["home","الرئيسية"],["services","خدماتنا"],["works","أعمالنا"],["packages","الباقات"],["faq","الأسئلة الشائعة"],["contact","تواصل معنا"]].filter(([id]) => id !== "services" || services.length).map(([id, t]) => `<button type="button" data-act="scroll" data-to="${id}">${t}</button>`).join("")}
+    </div></nav>
+    <section class="hero2" id="home">
       <div class="hero2-text">
         <span class="eyebrow">أثر تصنع أثر</span>
         <h1>تسويق يصنع <em>فرقاً</em> في مبيعاتك</h1>
@@ -212,11 +274,11 @@ function viewStore() {
     <path d="M112 300 l8-12 8 12" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
 </svg></div></div>
     </section>
-    ${services.length ? `<section class="home-sec" aria-labelledby="svc-h">
+    ${services.length ? `<section class="home-sec" id="services" aria-labelledby="svc-h">
       <div class="cat-head"><h2 id="svc-h">خدماتنا</h2><p>اختر الخدمة التي يحتاجها نشاطك، ونوصلك لباقاتها مباشرة.</p></div>
       <div class="svc-grid">${services.map(({ c }) => `<button class="svc" type="button" data-act="svc" data-f="${c.id}">${svcIcon(c.name)}<h3>${esc(c.name)}</h3>${c.description ? `<p>${esc(c.description)}</p>` : ""}<span>شاهد الباقات ←</span></button>`).join("")}</div>
     </section>` : ""}
-    <section class="home-sec" aria-labelledby="jr-h">
+    <section class="home-sec" id="journey" aria-labelledby="jr-h">
       <div class="cat-head"><h2 id="jr-h">كيف نساعد مشروعك ينمو</h2><p>نمشي معك خطوة بخطوة، من فهم نشاطك لين تشوف النتائج.</p></div>
       <div class="journey">
         <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="20" y="20" width="110" height="80" rx="8" fill="#1F1B13" stroke="#3A3222"/><rect x="32" y="34" width="50" height="6" rx="3" fill="#3A3528"/><rect x="32" y="48" width="80" height="5" rx="2.5" fill="#2E2B27"/><rect x="32" y="60" width="66" height="5" rx="2.5" fill="#2E2B27"/><rect x="32" y="72" width="74" height="5" rx="2.5" fill="#2E2B27"/><circle cx="130" cy="72" r="26" fill="#171511" stroke="#D4A64A" stroke-width="5"/><path d="M149 91 l22 22" stroke="#D4A64A" stroke-width="8" stroke-linecap="round"/><circle cx="130" cy="72" r="12" fill="#D4A64A" fill-opacity=".25"/></svg></div><div class="jh"><span class="jn">١</span><h3>نفهم مشروعك</h3></div><p>ندرس نشاطك وجمهورك ومنافسيك، ونحدد وش يميّزك.</p></div>
@@ -224,6 +286,11 @@ function viewStore() {
         <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="70" y="10" width="54" height="100" rx="10" fill="#1F1B13" stroke="#3A3222"/><rect x="78" y="24" width="38" height="38" rx="5" fill="#2A2416"/><path d="M84 54l9-10 7 6 10-12" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="78" y="70" width="30" height="4" rx="2" fill="#3A3528"/><rect x="78" y="80" width="22" height="4" rx="2" fill="#2E2B27"/><path d="M18 58v10a3 3 0 0 0 3 3h6l14 10V45L27 55h-6a3 3 0 0 0-3 3z" fill="#D4A64A"/><path d="M48 50a12 12 0 0 1 0 22" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round"/><rect x="136" y="30" width="42" height="30" rx="8" fill="#2A2416" stroke="#D4A64A"/><path d="M146 60 l-4 8 10-8" fill="#2A2416" stroke="#D4A64A"/><circle cx="148" cy="45" r="3" fill="#D4A64A"/><circle cx="157" cy="45" r="3" fill="#D4A64A"/><circle cx="166" cy="45" r="3" fill="#D4A64A"/><path d="M140 84 c4-6 12-6 14 0 c2-6 10-6 14 0 c0 8-14 14-14 14 s-14-6-14-14z" fill="#E06A5A"/></svg></div><div class="jh"><span class="jn">٣</span><h3>ننفّذ ونطلق</h3></div><p>نصمم وننشر ونطلق الإعلانات، ونتابع عملاءك المحتملين.</p></div>
         <div class="jstep"><div class="jart"><svg viewBox="0 0 190 120" aria-hidden="true"><rect x="16" y="14" width="158" height="92" rx="8" fill="#1F1B13" stroke="#3A3222"/><path d="M32 30v62h128" fill="none" stroke="#3A3222" stroke-width="2"/><path d="M40 84 L68 70 L92 76 L120 52 L150 34" fill="none" stroke="#D4A64A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 84 L68 70 L92 76 L120 52 L150 34 L150 92 L40 92Z" fill="#D4A64A" fill-opacity=".12"/><circle cx="150" cy="34" r="6" fill="#D4A64A"/><path d="M142 26 l8-8 8 8" fill="none" stroke="#D4A64A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-2)"/></svg></div><div class="jh"><span class="jn">٤</span><h3>نقيس ونطوّر</h3></div><p>تقارير واضحة بالأرقام، وتحسين مستمر عشان النمو ما يوقف.</p></div>
       </div>
+    </section>
+    <section class="home-sec" id="works" aria-labelledby="wk-h">
+      <div class="cat-head"><h2 id="wk-h">أعمالنا</h2><p>نماذج توضيحية لأسلوبنا في التصميم لأنشطة مختلفة. العلامات التجارية هنا وهمية، وستُضاف أعمال عملائنا هنا قريباً.</p></div>
+      <div class="works">${WORKS}</div>
+      ${consult ? `<p class="works-note">تبغى تصاميم بهذا المستوى لنشاطك؟ <a href="${consult}" target="_blank" rel="noopener" style="color:var(--gold)">كلّمنا على واتساب</a></p>` : ""}
     </section>
     <section class="home-sec" aria-labelledby="why-h">
       <div class="cat-head"><h2 id="why-h">لماذا أثر؟</h2></div>
@@ -255,7 +322,7 @@ function viewStore() {
       </div>
     </section>
     <section class="faq" id="faq"><div class="cat-head"><h2>الأسئلة الشائعة</h2></div><div class="faq-list">${HOME_FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></section>
-    <section class="final-cta">
+    <section class="final-cta" id="contact">
       <h2>جاهز تصنع أثر لنشاطك؟</h2>
       <p>ابدأ بالباقة المناسبة، أو كلّمنا ونساعدك تختار.</p>
       <div class="cta-row" style="justify-content:center">
@@ -268,6 +335,12 @@ function viewStore() {
       <p>ميزانية الإعلانات الممولة تُدفع للمنصة مباشرة ولا تدخل في سعر الباقة.</p>
       <p class="legal-links"><a href="legal.html#terms">الشروط والأحكام</a> · <a href="legal.html#refund">الإلغاء والاسترجاع</a> · <a href="legal.html#privacy">سياسة الخصوصية</a></p></footer>
   </div>`;
+  if (window._snavObs) window._snavObs.disconnect();
+  const navBtns = [...document.querySelectorAll(".snav button")];
+  if ("IntersectionObserver" in window) {
+    window._snavObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) navBtns.forEach(b => b.classList.toggle("on", b.dataset.to === en.target.id)); }), { rootMargin: "-45% 0px -50% 0px" });
+    navBtns.forEach(b => { const t = document.getElementById(b.dataset.to); if (t) window._snavObs.observe(t); });
+  }
 }
 function applyFilter(f) {
   storeFilter = f;
