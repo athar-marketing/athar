@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- Google Analytics: لا نحسب زيارات لوحة التحكم -->
+<script>
+function atharAdmin(){return location.hash.indexOf('#/admin')===0}
+if(atharAdmin()){window['ga-disable-G-ZEMTDJ51S9']=true}
+window.addEventListener('hashchange',function(){if(atharAdmin()){window['ga-disable-G-ZEMTDJ51S9']=true}});
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEMTDJ51S9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZEMTDJ51S9');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
