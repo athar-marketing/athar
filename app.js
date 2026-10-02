@@ -175,6 +175,14 @@ const HOME_CSS = `
 .mp .ba span{display:grid;place-items:end center;padding-bottom:4px;font-family:var(--body);font-size:.55rem}
 .mp .dots{display:flex;gap:3px}.mp .dots i{width:5px;height:5px;border-radius:50%;background:var(--a);opacity:.4}.mp .dots i:first-child{opacity:1}
 .works-note{color:var(--muted);font-size:.86rem}
+.reels-h{font-size:1.1rem;margin-top:8px}
+.reels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.reels{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;padding-bottom:6px;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}.reels::-webkit-scrollbar{display:none}.reel{scroll-snap-align:start}}
+.reel{margin:0;display:grid;gap:8px}
+.reel canvas{width:100%;aspect-ratio:9/16;border-radius:14px;display:block;background:#0A0A0A;border:1px solid var(--line);cursor:pointer}
+.reel figcaption{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;font-size:.88rem}
+.reel figcaption span{color:var(--muted)}
+.reel figcaption em{font-style:normal;font-size:.72rem;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:1px 8px;margin-inline-start:auto}
 .mp:hover{transform:scale(1.03)}
 .mp:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .lb{position:fixed;inset:0;z-index:100;background:rgba(8,8,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
@@ -274,6 +282,94 @@ function openWork(i) {
   document.addEventListener("keydown", key);
   show(); lb.querySelector(".lb-x").focus();
 }
+/* ---------- reels (motion samples) ---------- */
+const RL_AR = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+let rlImg = null;
+function rlLogo() {
+  if (!rlImg) { const G = "#D4A64A", BG = "#0F0F0F"; rlImg = new Image(); rlImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 30 170 166" width="340" height="332"><path d="M36 104 A66 66 0 0 1 106 42" fill="none" stroke="${G}" stroke-width="7" stroke-linecap="round"/><path d="M36 140 Q40 162 64 162" fill="none" stroke="${G}" stroke-width="4.5" stroke-linecap="round"/><rect x="25" y="98" width="22" height="44" rx="11" fill="${G}"/><ellipse cx="72" cy="161" rx="9" ry="5.5" fill="${G}"/><path d="M100 38 L109 38 L68 170 L59 170 Z" fill="${G}"/><path d="M100 38 L116 38 L162 170 L134 170 Z" fill="${G}"/><path d="M18 178 C92 184 146 150 158 82 L168 85 C158 162 98 192 18 178 Z" fill="${G}" stroke="${BG}" stroke-width="5" paint-order="stroke" stroke-linejoin="round"/><path d="M170 52 L176 88 L150 81 Z" fill="${G}"/></svg>`); }
+  return rlImg;
+}
+const RT = (text, y, size, color, delay, kind) => ({ text, y, size, color, delay: delay || 0, kind: kind || "d" });
+const REELS = [
+  { name: "من فكرة إلى أثر", type: "ريلز من حساباتنا", tag: "من أعمال أثر", logo: "athar", foot: "@athar.marketing.sa",
+    pal: { bg: "#0F0F0F", ink: "#F2EDE4", acc: "#D4A64A", mut: "#A9A196", glow: "212,166,74" },
+    scenes: [
+      { dur: 2.2, items: [RT("عندك مشروع؟", 900, 124, "ink")] },
+      { dur: 2.4, items: [RT("ونفسه يوصل", 830, 104, "ink"), RT("لعملاء أكثر؟", 990, 104, "acc", .4)] },
+      { dur: 5.2, items: [RT("معنا الرحلة واضحة", 430, 58, "mut", 0, "b"), { vline: 1, y1: 640, y2: 1300, delay: .2, len: 3.2 }, { step: 1, text: "نفهم مشروعك", y: 640, delay: .2 }, { step: 2, text: "نبني الخطة", y: 860, delay: 1.1 }, { step: 3, text: "ننفّذ ونطلق", y: 1080, delay: 2 }, { step: 4, text: "نقيس ونطوّر", y: 1300, delay: 2.9 }] },
+      { dur: 3.8, end: 1, items: [{ logo: 1, y: 470, w: 260 }, RT("أثر تصنع أثر", 960, 100, "acc", .3), { pill: "ابدأ باستشارة مجانية", y: 1120, delay: .7 }, RT("athar-marketing.pages.dev", 1290, 42, "mut", 1.1, "ltr")] }
+    ] },
+  { name: "مِرفا", type: "قهوة مختصة", tag: "نموذج توضيحي", logo: "م", foot: "نموذج توضيحي",
+    pal: { bg: "#2A190F", ink: "#EFE3D0", acc: "#E39A5B", mut: "#BFA88E", glow: "200,102,46" },
+    scenes: [
+      { dur: 2.2, items: [RT("صباحك", 820, 120, "ink"), RT("يبدأ هنا", 980, 120, "acc", .4)] },
+      { dur: 2.8, items: [{ pill: "جديد", y: 640 }, RT("V60 إثيوبي", 860, 120, "ink", .2), RT("توت · ياسمين", 1000, 56, "mut", .6, "b"), RT("18 ر.س", 1150, 90, "acc", 1)] },
+      { dur: 2.6, items: [RT("كل خميس", 760, 58, "mut", 0, "b"), RT("قهوتك الثانية", 910, 104, "ink", .3), RT("علينا", 1060, 124, "acc", .7)] },
+      { dur: 3.4, end: 1, items: [{ logo: 1, y: 600, w: 240 }, RT("مِرفا", 1000, 120, "ink", .3), RT("قهوة مختصة", 1120, 56, "mut", .6, "b")] }
+    ] },
+  { name: "دار نَدى", type: "عطور وعود", tag: "نموذج توضيحي", logo: "ن", foot: "نموذج توضيحي",
+    pal: { bg: "#1E0F23", ink: "#F3E9F5", acc: "#D8B26E", mut: "#B8A3BD", glow: "216,178,110" },
+    scenes: [
+      { dur: 2.4, items: [RT("عطرك", 840, 124, "ink"), RT("توقيعك", 1000, 124, "acc", .4)] },
+      { dur: 2.8, items: [RT("مجموعة الشتاء", 660, 56, "acc", 0, "b"), RT("عود كمبودي", 860, 112, "ink", .3), RT("ثبات يدوم", 1000, 60, "mut", .7, "b")] },
+      { dur: 2.6, items: [RT("توصيل مجاني", 880, 104, "ink"), RT("للطلبات فوق 200 ر.س", 1020, 56, "acc", .4, "b")] },
+      { dur: 3.4, end: 1, items: [{ logo: 1, y: 600, w: 240 }, RT("دار نَدى", 1000, 112, "ink", .3), RT("عطور وعود", 1120, 56, "mut", .6, "b")] }
+    ] }
+];
+REELS.forEach(r => r.total = r.scenes.reduce((a, x) => a + x.dur, 0));
+const rlEase = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const rlFont = (k, s) => `${k === "d" ? 700 : 400} ${s}px "Readex Pro", Tahoma, sans-serif`;
+function rlText(c, t, x, y, font, color, dir) { c.font = font; c.fillStyle = color; c.textAlign = "center"; c.direction = dir || "rtl"; c.fillText(t, x, y); }
+function rlMark(c, r, x, y, w) {
+  if (r.logo === "athar") { const im = rlLogo(); if (im.complete) c.drawImage(im, x - w / 2, y, w, w * 166 / 170); return; }
+  c.fillStyle = r.pal.acc; c.beginPath(); c.arc(x, y + w / 2, w / 2, 0, Math.PI * 2); c.fill();
+  rlText(c, r.logo, x, y + w * .68, rlFont("d", w * .5), r.pal.bg);
+}
+function drawReel(c, r, t) {
+  const W = 1080, H = 1920, P = r.pal;
+  c.save(); c.setTransform(c.canvas.width / W, 0, 0, c.canvas.height / H, 0, 0);
+  c.fillStyle = P.bg; c.fillRect(0, 0, W, H);
+  const gx = W / 2 + Math.sin(t * .5) * 120, g = c.createRadialGradient(gx, H * .42, 40, gx, H * .42, 950);
+  g.addColorStop(0, `rgba(${P.glow},.16)`); g.addColorStop(1, `rgba(${P.glow},0)`); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  rlText(c, r.foot, W / 2, H - 150, rlFont("b", 36), P.mut, r.foot.startsWith("@") ? "ltr" : "rtl");
+  let acc = 0, sc = r.scenes[r.scenes.length - 1], st = sc.dur;
+  for (const s of r.scenes) { if (t < acc + s.dur) { sc = s; st = t - acc; break; } acc += s.dur; }
+  const out = sc.end ? 1 : 1 - rlEase((st - (sc.dur - .3)) / .3);
+  sc.items.forEach(it => {
+    const a = rlEase((st - (it.delay || 0)) / .4) * out; if (a <= 0) return; const dy = (1 - a) * 40;
+    c.save(); c.globalAlpha = a;
+    if (it.logo) rlMark(c, r, W / 2, it.y + dy, it.w);
+    else if (it.pill) { c.font = rlFont("d", 48); const w = c.measureText(it.pill).width + 120, h = 116; c.fillStyle = P.acc; c.beginPath(); c.roundRect((W - w) / 2, it.y - h / 2 + dy, w, h, h / 2); c.fill(); rlText(c, it.pill, W / 2, it.y + 17 + dy, rlFont("d", 48), P.bg); }
+    else if (it.vline) { c.globalAlpha = out; c.fillStyle = P.acc; c.fillRect(W - 262, it.y1, 4, (it.y2 - it.y1) * rlEase((st - it.delay) / it.len)); }
+    else if (it.step) { const x = W - 260; c.fillStyle = P.acc; c.beginPath(); c.arc(x, it.y + dy, 58, 0, Math.PI * 2); c.fill(); rlText(c, RL_AR(it.step), x, it.y + 24 + dy, rlFont("d", 62), P.bg); c.font = rlFont("d", 80); c.fillStyle = P.ink; c.textAlign = "right"; c.direction = "rtl"; c.fillText(it.text, x - 110, it.y + 28 + dy); }
+    else rlText(c, it.text, W / 2, it.y + dy, rlFont(it.kind === "d" ? "d" : "b", it.size), P[it.color], it.kind === "ltr" ? "ltr" : "rtl");
+    c.restore();
+  });
+  c.save(); c.globalAlpha = .9; rlMark(c, r, W / 2, 150, 96); c.restore();
+  c.restore();
+}
+const REELS_HTML = REELS.map((r, i) => `<figure class="reel"><canvas width="540" height="960" data-reel="${i}" role="img" aria-label="ريل متحرك: ${r.name}، ${r.type}"></canvas><figcaption><b>${r.name}</b><span>${r.type}</span><em>${r.tag}</em></figcaption></figure>`).join("");
+let rlRaf = 0;
+function startReels() {
+  if (window._reelObs) window._reelObs.disconnect();
+  cancelAnimationFrame(rlRaf);
+  const cvs = [...document.querySelectorAll("canvas[data-reel]")]; if (!cvs.length) return;
+  const still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const st = cvs.map(cv => ({ cv, r: REELS[+cv.dataset.reel], ctx: cv.getContext("2d"), vis: false, paused: still, t0: 0 }));
+  const poster = s => drawReel(s.ctx, s.r, s.r.total - .5);
+  const paint = () => st.forEach(poster);
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(paint); rlLogo().onload = paint; paint();
+  st.forEach(s => s.cv.addEventListener("click", () => { s.paused = !s.paused; s.t0 = performance.now(); if (s.paused) poster(s); }));
+  if (still || !("IntersectionObserver" in window)) return;
+  window._reelObs = new IntersectionObserver(es => es.forEach(en => { const s = st.find(x => x.cv === en.target); if (s) { s.vis = en.isIntersecting; if (s.vis) s.t0 = performance.now(); } }), { threshold: .4 });
+  st.forEach(s => window._reelObs.observe(s.cv));
+  const loop = now => {
+    if (!document.body.contains(st[0].cv)) return;
+    st.forEach(s => { if (s.vis && !s.paused) drawReel(s.ctx, s.r, ((now - s.t0) / 1000) % (s.r.total + 1)); });
+    rlRaf = requestAnimationFrame(loop);
+  };
+  rlRaf = requestAnimationFrame(loop);
+}
 function viewStore() {
   if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
@@ -337,6 +433,9 @@ function viewStore() {
     <section class="home-sec" id="works" aria-labelledby="wk-h">
       <div class="cat-head"><h2 id="wk-h">أعمالنا</h2><p>نماذج توضيحية لأسلوبنا في التصميم لأنشطة مختلفة. العلامات التجارية هنا وهمية، وستُضاف أعمال عملائنا هنا قريباً. اضغط على أي تصميم لتكبيره.</p></div>
       <div class="works">${WORKS}</div>
+      <h3 class="reels-h">ريلز وموشن جرافيك</h3>
+      <div class="reels">${REELS_HTML}</div>
+      <p class="works-note">الريلز تشتغل لوحدها. اضغط على أي ريل لإيقافه أو تشغيله.</p>
       ${consult ? `<p class="works-note">تبغى تصاميم بهذا المستوى لنشاطك؟ <a href="${consult}" target="_blank" rel="noopener" style="color:var(--gold)">كلّمنا على واتساب</a></p>` : ""}
     </section>
     <section class="home-sec" aria-labelledby="why-h">
@@ -388,6 +487,7 @@ function viewStore() {
     window._snavObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) navBtns.forEach(b => b.classList.toggle("on", b.dataset.to === en.target.id)); }), { rootMargin: "-45% 0px -50% 0px" });
     navBtns.forEach(b => { const t = document.getElementById(b.dataset.to); if (t) window._snavObs.observe(t); });
   }
+  startReels();
 }
 function applyFilter(f) {
   storeFilter = f;
