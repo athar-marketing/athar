@@ -163,7 +163,7 @@ const HOME_CSS = `
 .work-h p{color:var(--muted);font-size:.84rem}
 .work-tag{margin-inline-start:auto;font-size:.72rem;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}
 .mps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mp{aspect-ratio:4/5;border-radius:10px;background:var(--b);color:var(--i);padding:9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;font-family:var(--display);line-height:1.25}
+.mp{border:0;width:100%;text-align:start;cursor:zoom-in;transition:transform .15s;aspect-ratio:4/5;border-radius:10px;background:var(--b);color:var(--i);padding:9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;font-family:var(--display);line-height:1.25}
 .mp small{font-family:var(--body);font-size:.6rem;opacity:.85}
 .mp b{font-size:clamp(.78rem,2.6vw,.95rem);font-weight:700}
 .mp .a{color:var(--a)}
@@ -175,6 +175,23 @@ const HOME_CSS = `
 .mp .ba span{display:grid;place-items:end center;padding-bottom:4px;font-family:var(--body);font-size:.55rem}
 .mp .dots{display:flex;gap:3px}.mp .dots i{width:5px;height:5px;border-radius:50%;background:var(--a);opacity:.4}.mp .dots i:first-child{opacity:1}
 .works-note{color:var(--muted);font-size:.86rem}
+.mp:hover{transform:scale(1.03)}
+.mp:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(8,8,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.lb-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px}
+.lb-x,.lb-nav button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.25rem;cursor:pointer;display:grid;place-items:center}
+.lb-x:focus-visible,.lb-nav button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lb .mp{width:min(86vw,400px,calc((100vh - 210px) * .8));cursor:default;padding:26px;gap:10px;border-radius:18px}
+.lb .mp:hover{transform:none}
+.lb .mp small{font-size:1rem}
+.lb .mp b{font-size:clamp(1.4rem,7vw,2rem)}
+.lb .mp .pl{font-size:.9rem;padding:3px 12px}
+.lb .mp .ft{font-size:1rem}
+.lb .mp .ba span{font-size:1rem;padding-bottom:10px}
+.lb .mp .dots{gap:6px}.lb .mp .dots i{width:9px;height:9px}
+.lb-cap{color:var(--muted);font-size:.92rem;text-align:center}
+.lb-nav{display:flex;align-items:center;gap:18px}
+.lb-n{color:var(--muted);font-variant-numeric:tabular-nums;min-width:60px;text-align:center}
 `;
 const SVC_ICONS = [
   [/إعلان/, '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M18 6a8 8 0 0 1 0 12"/>'],
@@ -204,7 +221,8 @@ const WK_ICON = {
   clock: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="24" cy="24" r="17"/><path d="M24 14v10l7 5"/></svg>'
 };
 const wk = (name, type, logo, lc, posts) => `<article class="work"><div class="work-h"><span class="work-logo" style="background:${lc[0]};color:${lc[1]}">${logo}</span><div><h3>${name}</h3><p>${type}</p></div><span class="work-tag">نموذج توضيحي</span></div><div class="mps">${posts.join("")}</div></article>`;
-const mp = (b, i, a, inner) => `<div class="mp" style="--b:${b};--i:${i};--a:${a}" aria-hidden="true">${inner}</div>`;
+let mpN = 0;
+const mp = (b, i, a, inner) => `<button type="button" class="mp" data-act="work" data-i="${mpN++}" style="--b:${b};--i:${i};--a:${a}" aria-label="تكبير التصميم">${inner}</button>`;
 const WORKS = [
   wk("مِرفا", "قهوة مختصة", "م", ["#3B2417", "#EFE3D0"], [
     mp("#EFE3D0", "#3B2417", "#C8662E", `<span class="pl">جديد</span><b>V60 إثيوبي</b><div class="ic" style="color:#C8662E">${WK_ICON.cup}</div><div class="ft"><small>توت · ياسمين</small><b class="a">18 ر.س</b></div>`),
@@ -227,6 +245,35 @@ const WORKS = [
     mp("#C9A27A", "#24372F", "#2F4A3F", `<b>3 عادات لبشرة صحية</b><small>١. شرب الماء</small><small>٢. واقي الشمس</small><small>٣. نوم كافٍ</small><div class="ft"><small>احفظ البوست</small></div>`)
   ])
 ].join("");
+function openWork(i) {
+  const all = [...document.querySelectorAll(".works .mp")]; if (!all.length) return;
+  let cur = i;
+  document.getElementById("lb")?.remove();
+  const lb = document.createElement("div");
+  lb.id = "lb"; lb.className = "lb"; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "معرض الأعمال");
+  lb.innerHTML = `<button class="lb-x" type="button" aria-label="إغلاق">✕</button><div class="lb-stage"></div><p class="lb-cap"></p><div class="lb-nav"><button type="button" class="lb-p" aria-label="السابق">→</button><span class="lb-n"></span><button type="button" class="lb-nx" aria-label="التالي">←</button></div>`;
+  document.body.appendChild(lb); document.body.style.overflow = "hidden";
+  const show = () => {
+    const src = all[cur], d = document.createElement("div");
+    d.className = "mp"; d.style.cssText = src.style.cssText; d.innerHTML = src.innerHTML;
+    const st = lb.querySelector(".lb-stage"); st.innerHTML = ""; st.appendChild(d);
+    const w = src.closest(".work");
+    lb.querySelector(".lb-cap").textContent = `${w.querySelector("h3").textContent} · ${w.querySelector(".work-h p").textContent} · نموذج توضيحي`;
+    lb.querySelector(".lb-n").textContent = `${cur + 1} من ${all.length}`;
+  };
+  const step = n => { cur = (cur + n + all.length) % all.length; show(); };
+  const key = e => { if (e.key === "Escape") close(); else if (e.key === "ArrowLeft") step(1); else if (e.key === "ArrowRight") step(-1); };
+  const close = () => { lb.remove(); document.body.style.overflow = ""; document.removeEventListener("keydown", key); all[cur]?.focus(); };
+  lb.querySelector(".lb-x").onclick = close;
+  lb.querySelector(".lb-p").onclick = () => step(-1);
+  lb.querySelector(".lb-nx").onclick = () => step(1);
+  lb.addEventListener("click", e => { if (e.target === lb) close(); });
+  let x0 = null;
+  lb.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener("touchend", e => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) step(dx > 0 ? 1 : -1); x0 = null; });
+  document.addEventListener("keydown", key);
+  show(); lb.querySelector(".lb-x").focus();
+}
 function viewStore() {
   if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
@@ -288,7 +335,7 @@ function viewStore() {
       </div>
     </section>
     <section class="home-sec" id="works" aria-labelledby="wk-h">
-      <div class="cat-head"><h2 id="wk-h">أعمالنا</h2><p>نماذج توضيحية لأسلوبنا في التصميم لأنشطة مختلفة. العلامات التجارية هنا وهمية، وستُضاف أعمال عملائنا هنا قريباً.</p></div>
+      <div class="cat-head"><h2 id="wk-h">أعمالنا</h2><p>نماذج توضيحية لأسلوبنا في التصميم لأنشطة مختلفة. العلامات التجارية هنا وهمية، وستُضاف أعمال عملائنا هنا قريباً. اضغط على أي تصميم لتكبيره.</p></div>
       <div class="works">${WORKS}</div>
       ${consult ? `<p class="works-note">تبغى تصاميم بهذا المستوى لنشاطك؟ <a href="${consult}" target="_blank" rel="noopener" style="color:var(--gold)">كلّمنا على واتساب</a></p>` : ""}
     </section>
@@ -841,6 +888,7 @@ app.addEventListener("click", async e => {
   const act = b.dataset.act;
   if (act === "filter") applyFilter(b.dataset.f);
   else if (act === "svc") { applyFilter(b.dataset.f); document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }
+  else if (act === "work") openWork(+b.dataset.i);
   else if (act === "scroll") document.getElementById(b.dataset.to)?.scrollIntoView({ behavior: "smooth" });
   else if (act === "order") go("#/order/" + b.dataset.id);
   else if (act === "logout") { await sb.auth.signOut(); }
