@@ -97,10 +97,11 @@ function pkgCard(p, c) {
   return `<article class="card${p.popular ? " pop" : ""}">
     ${p.popular ? '<span class="badge">الأكثر طلباً</span>' : ""}
     <div><div class="tier">${esc(p.tier)}</div><h3>${esc(p.name)}</h3></div>
-    <div class="price"><b>${num(p.price)}</b><span>ر.س ${esc(unit)}</span>${p.old_price ? `<s>${num(p.old_price)}</s>` : ""}</div>
+    <div class="price">${p.quote ? `<b style="font-size:1.4rem">حسب الطلب</b>` : `<b>${num(p.price)}</b><span>ر.س ${esc(unit)}</span>${p.old_price ? `<s>${num(p.old_price)}</s>` : ""}`}</div>
+    ${p.fit ? `<p class="fit"><b>مناسبة لـ:</b> ${esc(p.fit)}</p>` : ""}
     <ul class="feat">${(p.features || []).map(f => `<li>${esc(f)}</li>`).join("")}</ul>
-    ${c.note ? `<p class="note">${esc(c.note)}</p>` : ""}
-    <button class="btn" data-act="order" data-id="${p.id}">اطلب الباقة</button>
+    ${p.delivery ? `<p class="dlv">⏱ ${esc(p.delivery)}</p>` : ""}
+    ${p.quote ? (settings.whatsapp ? `<a class="btn" href="${waLink("السلام عليكم، أبغى أعرف تفاصيل: " + p.name)}" target="_blank" rel="noopener">تواصل معنا</a>` : "") : `<button class="btn" data-act="order" data-id="${p.id}">اطلب الباقة</button>`}
   </article>`;
 }
 const HOME_CSS = `
@@ -176,6 +177,9 @@ const HOME_CSS = `
 .mp .dots{display:flex;gap:3px}.mp .dots i{width:5px;height:5px;border-radius:50%;background:var(--a);opacity:.4}.mp .dots i:first-child{opacity:1}
 .works-note{color:var(--muted);font-size:.86rem}
 .reels-h{font-size:1.1rem;margin-top:8px}
+.card .fit{font-size:.86rem;background:var(--accent-soft);border-radius:8px;padding:6px 10px;color:var(--ink);margin:0}
+.card .dlv{font-size:.82rem;color:var(--muted);margin:0}
+.cat-head .cat-note{color:var(--gold);font-size:.88rem}
 .reels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (max-width:760px){.reels{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;padding-bottom:6px;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}.reels::-webkit-scrollbar{display:none}.reel{scroll-snap-align:start}}
 .reel{margin:0;display:grid;gap:8px}
@@ -373,7 +377,7 @@ function startReels() {
 function viewStore() {
   if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
-  const services = shown.filter(({ c }) => !c.is_bundle);
+  const services = shown.filter(({ c }) => !c.is_bundle && !/إضاف/.test(c.name));
   const consult = settings.whatsapp ? waLink("السلام عليكم، أبغى استشارة مجانية عن تسويق نشاطي") : "";
   app.innerHTML = `<div class="wrap">
     ${topBar()}
@@ -455,7 +459,7 @@ function viewStore() {
       ${shown.map(({ c }) => `<button class="tab" data-act="filter" data-f="${c.id}" aria-pressed="${storeFilter == c.id}">${esc(c.name)}</button>`).join("")}
     </nav>
     ${shown.length ? shown.map(({ c, list }) => `<section class="cat${c.is_bundle ? " bundle" : ""}" data-cat="${c.id}" ${storeFilter !== "all" && storeFilter != c.id ? "hidden" : ""}>
-      <div class="cat-head"><h2>${esc(c.name)}</h2>${c.description ? `<p>${esc(c.description)}</p>` : ""}</div>
+      <div class="cat-head"><h2>${esc(c.name)}</h2>${c.description ? `<p>${esc(c.description)}</p>` : ""}${c.note ? `<p class="cat-note">${esc(c.note)}</p>` : ""}</div>
       <div class="grid">${list.map(p => pkgCard(p, c)).join("")}</div></section>`).join("")
       : `<div class="empty" style="margin-top:30px">لا توجد باقات حالياً.</div>`}
     <section class="section">
@@ -546,9 +550,13 @@ function afterLogin() {
 /* ================= ORDER ================= */
 function viewOrder(id) {
   const p = pkgs.find(x => x.id == id && x.active);
-  if (!p) { toast("هذه الباقة غير متاحة الآن."); return go("#/"); }
+  if (!p || p.quote) { toast(p ? "هذه الباقة بالتواصل معنا على واتساب." : "هذه الباقة غير متاحة الآن."); return go("#/"); }
   const c = cats.find(x => x.id === p.category_id) || {};
   const unit = p.unit || c.unit || "";
+  const monthly = /شهري/.test(unit);
+  const durs = monthly ? (c.is_bundle ? [3, 6] : [1, 3, 6]) : [];
+  const disc = m => m === 3 ? 0.10 : m === 6 ? 0.15 : 0;
+  const total = m => Math.round(p.price * m * (1 - disc(m)));
   app.innerHTML = `<div class="wrap">${topBar()}
     <div class="page" style="max-width:620px">
       <a href="#/" class="muted" style="font-size:.9rem">← الرجوع للباقات</a>
@@ -558,6 +566,7 @@ function viewOrder(id) {
         <ul class="feat">${(p.features || []).map(f => `<li>${esc(f)}</li>`).join("")}</ul>
       </div>
       <form class="panel form" id="order-form" novalidate>
+        ${durs.length ? `<div class="field"><label for="o-months">مدة الاشتراك</label><select id="o-months">${durs.map(m => `<option value="${m}">${m === 1 ? "شهر واحد" : m + " شهور (خصم " + Math.round(disc(m) * 100) + "%)"} · ${num(total(m))} ر.س</option>`).join("")}</select></div><p class="muted" id="o-total" style="font-size:.9rem;margin:0"></p>` : ""}
         <div class="field"><label for="o-biz">اسم النشاط أو الحساب</label><input id="o-biz" placeholder="مثال: متجر ورد الرياض"></div>
         <div class="field"><label for="o-notes">تفاصيل الطلب</label><textarea id="o-notes" placeholder="روابط حساباتك، المنصات المطلوبة، موعد البدء، أي تفاصيل تساعدنا"></textarea></div>
         <p class="err" id="o-err" hidden></p>
@@ -565,11 +574,14 @@ function viewOrder(id) {
         <p class="muted" style="font-size:.86rem">بعد التأكيد تظهر لك بيانات التحويل البنكي في حسابك.</p>
       </form>
     </div></div>`;
+  const msel = document.getElementById("o-months");
+  const showTotal = () => { if (!msel) return; const m = Number(msel.value); document.getElementById("o-total").textContent = m > 1 ? `الإجمالي ${num(total(m))} ر.س لمدة ${m} شهور بدل ${num(p.price * m)} ر.س.` : ""; };
+  msel?.addEventListener("change", showTotal); showTotal();
   document.getElementById("order-form").addEventListener("submit", async e => {
     e.preventDefault();
     const btn = document.getElementById("o-btn");
     busy(btn, true, "جارٍ إرسال الطلب…");
-    const { data, error } = await sb.from("orders").insert({ customer_id: session.user.id, package_id: p.id, business: val("o-biz"), notes: val("o-notes") }).select().single();
+    const { data, error } = await sb.from("orders").insert({ customer_id: session.user.id, package_id: p.id, months: msel ? Number(msel.value) : 1, business: val("o-biz"), notes: val("o-notes") }).select().single();
     if (error) { busy(btn, false); const el = document.getElementById("o-err"); el.textContent = friendly(error); el.hidden = false; return; }
     sessionStorage.setItem("justOrdered", data.id);
     go("#/account");
@@ -853,7 +865,7 @@ function editCat(id) {
   });
 }
 function editPkg(id, catId) {
-  const p = pkgs.find(x => x.id == id) || { name: "", tier: "", price: "", old_price: "", unit: "", features: [], popular: false, active: true, sort: pkgs.filter(x => x.category_id == catId).length + 1, category_id: Number(catId) };
+  const p = pkgs.find(x => x.id == id) || { name: "", tier: "", price: "", old_price: "", unit: "", fit: "", delivery: "", quote: false, features: [], popular: false, active: true, sort: pkgs.filter(x => x.category_id == catId).length + 1, category_id: Number(catId) };
   const m = modal(id ? "تعديل الباقة" : "باقة جديدة", `<form class="form" id="pkg-form">
     <div class="two"><div class="field"><label for="k-name">اسم الباقة</label><input id="k-name" value="${esc(p.name)}" required></div>
     <div class="field"><label for="k-tier">المستوى</label><input id="k-tier" value="${esc(p.tier)}" placeholder="أساسية / احترافية / متقدمة"></div></div>
@@ -861,10 +873,13 @@ function editPkg(id, catId) {
     <div class="field"><label for="k-old">السعر قبل الخصم <small>(اختياري)</small></label><input id="k-old" type="number" inputmode="decimal" value="${esc(p.old_price || "")}"></div></div>
     <div class="two"><div class="field"><label for="k-unit">وحدة خاصة <small>(اتركيها فارغة لوحدة القسم)</small></label><input id="k-unit" value="${esc(p.unit || "")}"></div>
     <div class="field"><label for="k-cat">القسم</label><select id="k-cat">${cats.map(c => `<option value="${c.id}" ${c.id == p.category_id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div></div>
+    <div class="field"><label for="k-fit">مناسبة لـ <small>(مين العميل اللي تناسبه)</small></label><input id="k-fit" value="${esc(p.fit || "")}" placeholder="مثال: مشروع جديد يبغى حضور ثابت"></div>
+    <div class="field"><label for="k-dlv">مدة التسليم</label><input id="k-dlv" value="${esc(p.delivery || "")}" placeholder="مثال: التسليم خلال 3 أيام عمل"></div>
     <div class="field"><label for="k-feat">ما تشمله الباقة <small>(كل سطر ميزة)</small></label><textarea id="k-feat">${esc((p.features || []).join("\n"))}</textarea></div>
     <div class="two"><div class="field"><label for="k-sort">الترتيب</label><input id="k-sort" type="number" value="${esc(p.sort)}"></div></div>
     <label class="check"><input type="checkbox" id="k-pop" ${p.popular ? "checked" : ""}> تمييزها كـ "الأكثر طلباً"</label>
     <label class="check"><input type="checkbox" id="k-active" ${p.active ? "checked" : ""}> ظاهرة للعملاء</label>
+    <label class="check"><input type="checkbox" id="k-quote" ${p.quote ? "checked" : ""}> السعر حسب الطلب (يظهر زرار تواصل معنا بدل اطلب الباقة)</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="submit" id="k-btn">حفظ</button>
     ${id ? `<button class="btn danger" type="button" id="k-del">حذف الباقة</button>` : ""}</div></form>`);
   m.querySelector("#pkg-form").addEventListener("submit", async e => {
@@ -872,7 +887,8 @@ function editPkg(id, catId) {
     if (!val("k-name")) return toast("اكتبي اسم الباقة.");
     const row = { name: val("k-name"), tier: val("k-tier"), price: Number(val("k-price") || 0), old_price: val("k-old") ? Number(val("k-old")) : null, unit: val("k-unit") || null,
       category_id: Number(val("k-cat")), features: lines(document.getElementById("k-feat").value), sort: Number(val("k-sort") || 0),
-      popular: m.querySelector("#k-pop").checked, active: m.querySelector("#k-active").checked };
+      popular: m.querySelector("#k-pop").checked, active: m.querySelector("#k-active").checked,
+      fit: val("k-fit") || null, delivery: val("k-dlv") || null, quote: m.querySelector("#k-quote").checked };
     const btn = m.querySelector("#k-btn"); busy(btn, true);
     const { error } = id ? await sb.from("packages").update(row).eq("id", id) : await sb.from("packages").insert(row);
     busy(btn, false);
