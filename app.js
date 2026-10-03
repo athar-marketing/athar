@@ -180,6 +180,10 @@ const HOME_CSS = `
 .card .fit{font-size:.86rem;background:var(--accent-soft);border-radius:8px;padding:6px 10px;color:var(--ink);margin:0}
 .card .dlv{font-size:.82rem;color:var(--muted);margin:0}
 .cat-head .cat-note{color:var(--gold);font-size:.88rem}
+.tabs{top:calc(env(safe-area-inset-top,0px) + 53px);z-index:15}
+.tab{display:inline-flex;align-items:center;gap:7px;font-family:var(--display);font-weight:500}
+.tab svg{width:18px;height:18px;flex:none}
+.tab[aria-pressed="true"]{background:var(--gold);color:var(--accent-ink);border-color:var(--gold)}
 .reels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (max-width:760px){.reels{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;padding-bottom:6px;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}.reels::-webkit-scrollbar{display:none}.reel{scroll-snap-align:start}}
 .reel{margin:0;display:grid;gap:8px}
@@ -209,7 +213,9 @@ const SVC_ICONS = [
   [/إعلان/, '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M18 6a8 8 0 0 1 0 12"/>'],
   [/تصميم/, '<path d="M12 21l-4-8 4-9 4 9z"/><path d="M12 13v8"/><circle cx="12" cy="11" r="1.3"/>'],
   [/سوشيال/, '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>'],
-  [/CRM|كول/, '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 2-2 3-5 3h-1"/>'],
+  [/كول|خدمة العملاء/, '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 2-2 3-5 3h-1"/>'],
+  [/CRM/, '<ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/><path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/>'],
+  [/مبيعات/, '<path d="M3 20h18"/><path d="M5 16l5-5 4 3 6-7"/><path d="M15 7h5v5"/>'],
   [/ذكاء/, '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M10 10v4l3.5-2z"/><path d="M8 3l1 3M16 3l-1 3M12 2v3"/>'],
   [/مونتاج/, '<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 9l2-5 16 0-2 5"/><path d="M8 4l-1.5 5M13 4l-1.5 5M18 4l-1.5 5"/>'],
 ];
@@ -378,6 +384,7 @@ function viewStore() {
   if (!document.getElementById("home-css")) { const st = document.createElement("style"); st.id = "home-css"; st.textContent = HOME_CSS; document.head.appendChild(st); }
   const shown = cats.map(c => ({ c, list: pkgs.filter(p => p.category_id === c.id && p.active) })).filter(x => x.list.length);
   const services = shown.filter(({ c }) => !c.is_bundle && !/إضاف/.test(c.name));
+  if (!shown.some(({ c }) => c.id == storeFilter)) storeFilter = shown.length ? shown[0].c.id : "all";
   const consult = settings.whatsapp ? waLink("السلام عليكم، أبغى استشارة مجانية عن تسويق نشاطي") : "";
   app.innerHTML = `<div class="wrap">
     ${topBar()}
@@ -452,11 +459,10 @@ function viewStore() {
       </div>
     </section>
     <section class="home-sec" id="packages" aria-labelledby="pkg-h" style="padding-bottom:0">
-      <div class="cat-head"><h2 id="pkg-h">باقاتنا</h2><p>قارن الباقات واطلب مباشرة. وتقدر تتواصل معنا لو احتجت باقة مخصصة.</p></div>
+      <div class="cat-head"><h2 id="pkg-h">باقاتنا</h2><p>اختر الخدمة من الشريط، وبعدين الباقة اللي تناسب نشاطك. وتقدر تتواصل معنا لو احتجت باقة مخصصة.</p></div>
     </section>
     <nav class="tabs" aria-label="أقسام الخدمات">
-      <button class="tab" data-act="filter" data-f="all" aria-pressed="${storeFilter === "all"}">الكل</button>
-      ${shown.map(({ c }) => `<button class="tab" data-act="filter" data-f="${c.id}" aria-pressed="${storeFilter == c.id}">${esc(c.name)}</button>`).join("")}
+      ${shown.map(({ c }) => `<button class="tab" data-act="filter" data-f="${c.id}" aria-pressed="${storeFilter == c.id}">${svcIcon(c.name)}${esc(c.name)}</button>`).join("")}
     </nav>
     ${shown.length ? shown.map(({ c, list }) => `<section class="cat${c.is_bundle ? " bundle" : ""}" data-cat="${c.id}" ${storeFilter !== "all" && storeFilter != c.id ? "hidden" : ""}>
       <div class="cat-head"><h2>${esc(c.name)}</h2>${c.description ? `<p>${esc(c.description)}</p>` : ""}${c.note ? `<p class="cat-note">${esc(c.note)}</p>` : ""}</div>
@@ -1002,7 +1008,7 @@ async function route() {
 app.addEventListener("click", async e => {
   const b = e.target.closest("[data-act]"); if (!b) return;
   const act = b.dataset.act;
-  if (act === "filter") applyFilter(b.dataset.f);
+  if (act === "filter") { applyFilter(b.dataset.f); b.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }); const h = document.querySelector(`section.cat[data-cat="${b.dataset.f}"]`); if (h && h.getBoundingClientRect().top < 0) document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }
   else if (act === "svc") { applyFilter(b.dataset.f); document.getElementById("packages")?.scrollIntoView({ behavior: "smooth" }); }
   else if (act === "work") openWork(+b.dataset.i);
   else if (act === "scroll") document.getElementById(b.dataset.to)?.scrollIntoView({ behavior: "smooth" });
